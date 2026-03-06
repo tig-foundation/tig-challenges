@@ -1,113 +1,140 @@
 # tig-challenges
 
-Suite of optimization and algorithmic challenges featured in **The Innovation Game (TIG)**, collated for evaluating and comparing **AI-driven algorithm discovery** methods.
+Suite of algorithmic challenges featured in **The Innovation Game (TIG)**, collated for evaluating and comparing **AI-driven algorithm discovery** methods.
 
-This repo provides a unified CLI and data formats so you can generate instances, run solvers, and evaluate solutions across multiple challenge domains. It is designed to integrate with frameworks like [SkyDiscover](https://github.com/skydiscover-ai/skydiscover), [CodeEvolve](https://github.com/inter-co/science-codeevolve), and [OpenEvolve](https://github.com/codelion/openevolve): the code under evolution is `src/<challenge>/algorithm.rs`, which you can replace or evolve (e.g. via LLM-generated code) while using this repo for instance generation and evaluation.
+This repo provides a unified CLI and data formats so you can generate instances, run solvers, and evaluate solutions across multiple challenge domains. It is designed to integrate with frameworks like [SkyDiscover](https://github.com/skydiscover-ai/skydiscover), [CodeEvolve](https://github.com/inter-co/science-codeevolve), and [OpenEvolve](https://github.com/codelion/openevolve): **algorithm discovery frameworks should only edit `src/<challenge>/algorithm.rs`**; that file is the evolvable program. The rest of the repo (instance parsing, validation, scoring) stays fixed.
 
 ---
 
 ## Challenges
 
-- **[knapsack](src/knapsack/README.md)** — Select items to maximize value under a weight constraint, with pairwise interaction values (quadratic knapsack / team formation).
-- **[job_scheduling](src/job_scheduling/README.md)** — Schedule operations on eligible machines to minimize makespan (Flexible Job Shop).
+- **[knapsack](src/knapsack/README.md)** — Select items to maximize value under a weight constraint, with pairwise interaction values (quadratic knapsack / team formation). [Challenge Design](https://docs.tig.foundation/static/knapsack.pdf).
+- **[job_scheduling](src/job_scheduling/README.md)** — Schedule operations on eligible machines to minimize makespan (Flexible Job Shop). [Challenge Design](https://docs.tig.foundation/static/jssp.pdf).
 - **[satisfiability](src/satisfiability/README.md)** — Determine whether a Boolean formula (e.g. 3-SAT) has a satisfying truth assignment.
-- **[vehicle_routing](src/vehicle_routing/README.md)** — Route a fleet of vehicles from a depot to serve customers with time windows and capacity constraints (VRPTW).
+- **[vehicle_routing](src/vehicle_routing/README.md)** — Route a fleet of vehicles from a depot to serve customers with time windows and capacity constraints (VRPTW). [Challenge Design](https://docs.tig.foundation/static/vrptw.pdf).
 
 ---
 
 ## CLI Usage
 
+The CLI uses **mode-first** subcommands:
+
 ```bash
-./tig-challenges <challenge> <mode> [args...]
+./tig-challenges <mode> <challenge> [args...]
 ```
 
-- **`<challenge>`** — One of: `knapsack`, `job_scheduling`, `satisfiability`, `vehicle_routing`.
-- **`<mode>`** — One of: `generate`, `solve`, `evaluate`.
+**`<mode>`** — One of: `generate`, `solve`, `evaluate`.  
+**`<challenge>`** — One of: `satisfiability`, `knapsack`, `vehicle_routing`, `job_scheduling`.
 
 ### Mode: `generate`
 
 Generate problem instances for a given track.
 
 ```bash
-./tig-challenges <challenge> generate <track> [options]
+./tig-challenges generate <challenge> <track> [options]
 ```
 
 | Argument / Option | Description |
 |-------------------|-------------|
-| `<track>`         | Track name (e.g. `small`, `medium`, `large`). Defines instance size/difficulty. |
-| `--seed <seed>`   | *(Optional)* Random seed for reproducibility. |
-| `--n <number>`    | *(Optional)* Number of instances to generate. Default: 1. |
-| `--out <dir>`     | *(Optional)* Output folder. Default: `<challenge>/<track>`. |
+| `<challenge>`     | Challenge name (see above). |
+| `<track>`         | Track specification: key=value,key=value format (challenge-specific). See [Recommended tracks](#recommended-tracks) below. |
+| `--seed <seed>`   | *(Optional)* Random seed string (hashed for instance generation). Default: `0`. |
+| `-n, --n <N>`     | *(Optional)* Number of instances to generate. Default: `1`. |
+| `-o, --out <dir>` | *(Optional)* Output directory. Default: `<challenge>/<track>`. |
 
-**Example:** *(coming soon)*
-
-```bash
-./tig-challenges knapsack generate small --seed 42 --n 10 --out knapsack/small
-```
+Instances are written as `<out>/0.txt`, `<out>/1.txt`, etc. (one `.txt` per instance in the challenge’s text format).
 
 ### Mode: `solve`
 
-Run the built-in or configured solver on a single instance.
+Run the solver on a single instance and write the solution to a file. Each time the algorithm calls `save_solution`, the solution is written immediately to the given path so that if the process is interrupted, the latest solution is still saved.
 
 ```bash
-./tig-challenges <challenge> solve <instance>
+./tig-challenges solve <challenge> <instance_file> <solution_file> [options]
 ```
 
-| Argument   | Description |
-|------------|-------------|
-| `<instance>` | Path to a single instance file (e.g. JSON). |
-
-Output: solution written to stdout or a default path. *(Exact behavior: coming soon.)*
-
-**Example:** *(coming soon)*
-
-```bash
-./tig-challenges vehicle_routing solve instances/c101.json
-```
+| Argument / Option | Description |
+|-------------------|-------------|
+| `<challenge>`       | Challenge name. |
+| `<instance_file>`   | Path to a single instance file (`.txt`). Must exist. |
+| `<solution_file>`   | Path where the solution will be written (`.txt`). |
+| `--hyperparameters [JSON]` | *(Optional)* JSON object string for solver hyperparameters (e.g. `'{"timeout": 60}'`). |
 
 ### Mode: `evaluate`
 
-Score a solution file against an instance.
+Score a solution file against an instance. **Requires building with the `evaluate` feature** (see [Building](#building)).
 
 ```bash
-./tig-challenges <challenge> evaluate <instance> <solution>
+./tig-challenges evaluate <challenge> <instance_file> <solution_file>
 ```
 
-| Argument    | Description |
-|-------------|-------------|
-| `<instance>`  | Path to the instance file. |
-| `<solution>`  | Path to the solution file. |
+| Argument | Description |
+|----------|-------------|
+| `<challenge>`       | Challenge name. |
+| `<instance_file>`   | Path to the instance file. Must exist. |
+| `<solution_file>`  | Path to the solution file. Must exist. |
 
-Output: metrics (e.g. objective value, feasibility) to stdout. *(Exact format: coming soon.)*
+Output: quality score printed to stdout.
 
-**Example:** *(coming soon)*
-
-```bash
-./tig-challenges vehicle_routing evaluate instances/c101.json solutions/c101_sol.json
-```
+**Note:** The `evaluate` subcommand is intentionally gated by a Cargo feature so that evaluation logic and baselines are not visible to algorithm discovery; only `algorithm.rs` is meant to be evolved.
 
 ---
 
-## Integration with AI Discovery Frameworks
+## Recommended tracks
 
-The intended integration point for AI-driven algorithm discovery is **`src/<challenge>/algorithm.rs`**.
+Use these track strings with `generate` (track format is `key=value,key=value`; pass as a single argument, optionally quoted).
 
-- Each challenge exposes a `solve_challenge`-style API in its `algorithm` module.
-- Discovery frameworks (e.g. SkyDiscover, CodeEvolve, EvoX, AdaEvolve) can treat this file as the **evolvable program**: they generate or mutate `algorithm.rs`, build the project, and use the CLI in **solve** or **evaluate** mode to get objective scores.
-- The rest of the repo (instance parsing, validation, scoring) stays fixed so that evolution is focused on the solver logic only.
+**satisfiability**
+- `"n_vars=10000,ratio=4267"`
+- `"n_vars=100000,ratio=4150"`
+- `"n_vars=100000,ratio=4200"`
+- `"n_vars=5000,ratio=4267"`
+- `"n_vars=7500,ratio=4267"`
 
-*(Concrete wiring for each framework: coming soon.)*
+**vehicle_routing**
+- `"n_nodes=600"`
+- `"n_nodes=700"`
+- `"n_nodes=800"`
+- `"n_nodes=900"`
+- `"n_nodes=1000"`
+
+**knapsack**
+- `"n_items=1000,budget=10"`
+- `"n_items=1000,budget=25"`
+- `"n_items=1000,budget=5"`
+- `"n_items=5000,budget=10"`
+- `"n_items=5000,budget=25"`
+
+**job_scheduling**
+- `"n=50,s=fjsp_high"`
+- `"n=50,s=fjsp_medium"`
+- `"n=50,s=flow_shop"`
+- `"n=50,s=hybrid_flow_shop"`
+- `"n=50,s=job_shop"`
 
 ---
 
-## Building and Running
+## Integration with AI discovery frameworks
 
-*(Coming soon: exact build/run instructions.)*
+- The only file that should be modified or evolved by discovery frameworks is **`src/<challenge>/algorithm.rs`**. It exposes a `solve_challenge`-style API; frameworks generate or mutate this file, build the project, and invoke the CLI in **solve** (and optionally **evaluate**) mode to obtain scores.
+- Instance parsing, verification, and quality scoring are implemented elsewhere and stay fixed so that evolution is focused on the solver logic only.
+- To run **evaluate** (and thus expose evaluation to your workflow), build with `--features evaluate`. Without that feature, the binary does not include evaluation; this is intentional so that algorithm evolution does not see the evaluation implementation.
+
+---
+
+## Building
 
 ```bash
 cargo build --release
-./target/release/tig-challenges <challenge> <mode> ...
+./target/release/tig-challenges <mode> <challenge> ...
 ```
+
+To enable the **evaluate** subcommand (score solutions against instances):
+
+```bash
+cargo build --release --features evaluate
+```
+
+Without `--features evaluate`, the **evaluate** subcommand is not available (the binary will report that the feature is required).
 
 ---
 

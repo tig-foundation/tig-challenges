@@ -55,6 +55,23 @@ This assignment corresponds to the variable assignment $X1=False, X2=True, X3=Tr
 
 When substituted into the Boolean formula, each clause will evaluate to True, thereby this assignment is a solution as it satisfies all clauses.
 
+# Challenge and solution file format (txt)
+
+Instance and solution files use plain-text formats for interoperability.
+
+**Challenge (instance)** — [DIMACS CNF](http://www.satcompetition.org/2009/format-benchmarks2009.html): first line `p cnf <num_variables> <num_clauses>`, then one line per clause: space-separated literals (positive = variable, negative = negated) followed by `0`. Comment lines starting with `c` are ignored. Example:
+
+```
+p cnf 4 3
+1 2 -3 0
+-1 3 4 0
+2 -3 4 0
+```
+
+**Solution** — DIMACS-style solution: one line starting with `v`, then space-separated literals (positive = true, negative = false; 1-based variable indices), then `0`. Example: `v 1 -2 3 -4 0` means x₁=true, x₂=false, x₃=true, x₄=false.
+
+---
+
 # Our Challenge
 In TIG, the 3-SAT Challenge is based on the example above with configurable difficulty. Please see the challenge code for a precise specification.
 

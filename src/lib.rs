@@ -4,10 +4,10 @@ const QUALITY_PRECISION: i32 = 1_000_000;
 
 macro_rules! conditional_pub {
     (fn $name:ident $($rest:tt)*) => {
-        #[cfg(not(feature = "hide_verification"))]
+        #[cfg(feature = "evaluate")]
         pub fn $name $($rest)*
 
-        #[cfg(feature = "hide_verification")]
+        #[cfg(not(feature = "evaluate"))]
         fn $name $($rest)*
     };
 }

@@ -60,6 +60,16 @@ Verification:
 
 No machine has overlapping operations; each job’s operations are sequential. The **makespan** is max(5, 6, 7, 11) = **11**.
 
+## Challenge and solution file format (txt)
+
+Instance and solution files use plain-text formats for interoperability.
+
+**Challenge (instance)** — [Brandimarte .fjs format](https://www.idsia.ch/~monaldo/fjsp.html): first line `num_jobs num_machines [avg_machines_per_op]`; then for each job, one line containing the number of operations followed by, for each operation, the number of eligible machines and then pairs `machine time` (machine and processing time on that machine). Machine indices in the file are **1-based**; the implementation uses 0-based internally. Seed is not stored in the file.
+
+**Solution** — One line per scheduled operation: `Job Operation Machine Start_Time` (all **1-based** indices). Job and Operation identify the job and operation index; Machine is the chosen machine; Start_Time is the start time. When reading, an optional fifth column (Finish_Time) is ignored if present. Example: `1 1 1 0` means job 1, operation 1, on machine 1, starting at time 0.
+
+---
+
 ## Our Challenge
 
 In TIG, your algorithm does not return a solution; it calls `save_solution` as it runs. The **last** saved solution is evaluated. A valid solution must meet all constraints above; invalid solutions are not scored.

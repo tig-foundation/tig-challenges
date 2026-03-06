@@ -80,6 +80,16 @@ better_than_baseline = 1 - total_distance / baseline_total_distance
                      = 0.206
 ```
 
+## Challenge and solution file format (txt)
+
+Instance and solution files use plain-text formats for interoperability.
+
+**Challenge (instance)** — Solomon-style format: a `VEHICLE` section with `NUMBER` and `CAPACITY`; then a `CUSTOMER` section with column headers and one row per node (CUST NO., XCOORD., YCOORD., DEMAND, READY TIME, DUE DATE, SERVICE TIME). Node 0 is the depot. Distances are derived from coordinates (Euclidean, rounded to integer).
+
+**Solution** — One line per route: `Route K : n1 n2 n3 ...` where `K` is the route number (1-based) and `n1 n2 ...` are customer node indices (0-based) in visit order. The depot (node 0) is implicit at the start and end of each route and is omitted in the file. Example: `Route 1 : 6 1 7 8` means route 1 visits depot → 6 → 1 → 7 → 8 → depot.
+
+---
+
 ## Our Challenge
 In TIG, the baseline route is determined by using Solomon's I1 insertion heuristic that iteratively inserts customers into routes based on a cost function that balances distance and time constraints. The routes are built one by one until all customers are served.
 

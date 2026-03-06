@@ -62,6 +62,16 @@ better_than_baseline = total_value / baseline_value - 1
                      = 0.27
 ```
 
+# Challenge and solution file format (txt)
+
+Instance and solution files use plain-text formats for interoperability.
+
+**Challenge (instance)** — Graph format: first line `n m type` (number of nodes, number of edges, e.g. `int`); then `m` lines `i j u_ij` (edge from node `i` to `j` with weight `u_ij`; self-loops `i i u_ii` carry linear values); then one line of node weights `q_0 q_1 ...`; then one line of budgets `B_0 B_1 ...`. All indices are 0-based.
+
+**Solution** — A single line of space-separated item (node) indices to include in the knapsack (0-based). Example: `2 3 4` selects items 2, 3, and 4.
+
+---
+
 # Our Challenge 
 In TIG, the baseline value is determined by a two-stage approach. First, items are selected based on their value-to-weight ratio, including interaction values, until the capacity is reached. Then, a tabu-based local search refines the solution by swapping items to improve value while avoiding reversals, with early termination for unpromising swaps.
 
