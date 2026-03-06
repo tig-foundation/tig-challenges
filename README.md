@@ -56,6 +56,10 @@ tig.test_algorithm("job_scheduling", "datasets/job_scheduling/test/n=50,s=flow_s
 - **[satisfiability](src/satisfiability/README.md)** — Determine whether a Boolean formula (e.g. 3-SAT) has a satisfying truth assignment.
 - **[vehicle_routing](src/vehicle_routing/README.md)** — Route a fleet of vehicles from a depot to serve customers with time windows and capacity constraints (VRPTW). [Challenge Design](https://docs.tig.foundation/static/vrptw.pdf).
 
+### SOTA results
+
+*(Placeholder — leaderboard / state-of-the-art results and baselines will be linked here.)*
+
 ---
 
 ## CLI Usage
