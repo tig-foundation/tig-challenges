@@ -34,22 +34,22 @@ fn cli() -> Command {
 
 fn run_generate(
     challenge: &str,
-    track: &str,
+    track_id: &str,
     seed: &str,
     n: usize,
     out: Option<&PathBuf>,
 ) -> Result<()> {
     let out_dir: PathBuf = out
         .cloned()
-        .unwrap_or_else(|| PathBuf::from(format!("{}/{}", challenge, track)));
+        .unwrap_or_else(|| PathBuf::from(format!("{}/{}", challenge, track_id)));
     fs::create_dir_all(&out_dir)?;
 
     macro_rules! dispatch_generate {
         ($c:ident) => {{
-            let track = if track.starts_with('"') && track.ends_with('"') {
-                track.to_string()
+            let track = if track_id.starts_with('"') && track_id.ends_with('"') {
+                track_id.to_string()
             } else {
-                format!(r#""{}""#, track)
+                format!(r#""{}""#, track_id)
             };
             let track = serde_json::from_str::<challenges::$c::Track>(&track).map_err(|e| {
                 anyhow::anyhow!(
@@ -60,7 +60,8 @@ fn run_generate(
                 )
             })?;
             (0..n).into_par_iter().try_for_each(|i| {
-                let instance_seed = blake3::hash(format!("{}-{}-{}", challenge, seed, i).as_bytes());
+                let instance_seed =
+                    blake3::hash(format!("{}-{}-{}-{}", challenge, track_id, seed, i).as_bytes());
                 let instance =
                     challenges::$c::Challenge::generate_instance(instance_seed.as_bytes(), &track)?;
                 let path = Path::new(&out_dir).join(format!("{}.txt", i));
