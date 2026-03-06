@@ -1,0 +1,110 @@
+{
+    "satisfiability": {
+        "n_vars=10000,ratio=4267": {
+            "train": 100,
+            "test": 100,
+            "val": 100
+        },
+        "n_vars=100000,ratio=4150": {
+            "train": 100,
+            "test": 100,
+            "val": 100
+        },
+        "n_vars=100000,ratio=4200": {
+            "train": 100,
+            "test": 100,
+            "val": 100
+        },
+        "n_vars=5000,ratio=4267": {
+            "train": 100,
+            "test": 100,
+            "val": 100
+        },
+        "n_vars=7500,ratio=4267": {
+            "train": 100,
+            "test": 100,
+            "val": 100
+        }
+    },
+    "vehicle_routing": {
+        "n_nodes=600": {
+            "train": 100,
+            "test": 100,
+            "val": 100
+        },
+        "n_nodes=700": {
+            "train": 100,
+            "test": 100,
+            "val": 100
+        },
+        "n_nodes=800": {
+            "train": 100,
+            "test": 100,
+            "val": 100
+        },
+        "n_nodes=900": {
+            "train": 100,
+            "test": 100,
+            "val": 100
+        },
+        "n_nodes=1000": {
+            "train": 100,
+            "test": 100,
+            "val": 100
+        }
+    },
+    "knapsack": {
+        "n_items=1000,budget=10": {
+            "train": 100,
+            "test": 100,
+            "val": 100
+        },
+        "n_items=1000,budget=25": {
+            "train": 100,
+            "test": 100,
+            "val": 100
+        },
+        "n_items=1000,budget=5": {
+            "train": 100,
+            "test": 100,
+            "val": 100
+        },
+        "n_items=5000,budget=10": {
+            "train": 100,
+            "test": 100,
+            "val": 100
+        },
+        "n_items=5000,budget=25": {
+            "train": 100,
+            "test": 100,
+            "val": 100
+        }
+    },
+    "job_scheduling": {
+        "n=50,s=fjsp_high": {
+            "train": 100,
+            "test": 100,
+            "val": 100
+        },
+        "n=50,s=fjsp_medium": {
+            "train": 100,
+            "test": 100,
+            "val": 100
+        },
+        "n=50,s=flow_shop": {
+            "train": 100,
+            "test": 100,
+            "val": 100
+        },
+        "n=50,s=hybrid_flow_shop": {
+            "train": 100,
+            "test": 100,
+            "val": 100
+        },
+        "n=50,s=job_shop": {
+            "train": 100,
+            "test": 100,
+            "val": 100
+        }
+    }
+}

@@ -15,5 +15,6 @@ __pycache__/
 
 # Ignore these. 
 db_data/
+datasets/
 
 .DS_Store
