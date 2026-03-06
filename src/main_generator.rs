@@ -1,5 +1,6 @@
 use anyhow::Result;
 use clap::{arg, value_parser, Command};
+use rayon::prelude::*;
 use std::fs;
 use std::path::{Path, PathBuf};
 use tig_challenges as challenges;
@@ -38,7 +39,6 @@ fn run_generate(
     n: usize,
     out: Option<&PathBuf>,
 ) -> Result<()> {
-    let seed = blake3::hash(seed.as_bytes());
     let out_dir: PathBuf = out
         .cloned()
         .unwrap_or_else(|| PathBuf::from(format!("{}/{}", challenge, track)));
@@ -59,11 +59,14 @@ fn run_generate(
                     e
                 )
             })?;
-            for i in 0..n {
-                let instance = challenges::$c::Challenge::generate_instance(seed.as_bytes(), &track)?;
+            (0..n).into_par_iter().try_for_each(|i| {
+                let instance_seed = blake3::hash(format!("{}-{}-{}", challenge, seed, i).as_bytes());
+                let instance =
+                    challenges::$c::Challenge::generate_instance(instance_seed.as_bytes(), &track)?;
                 let path = Path::new(&out_dir).join(format!("{}.txt", i));
                 fs::write(path, instance.to_txt())?;
-            }
+                Ok::<(), anyhow::Error>(())
+            })?;
         }};
     }
 

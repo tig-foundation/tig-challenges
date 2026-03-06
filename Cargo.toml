@@ -16,6 +16,7 @@ rand = { version = "0.8.5", default-features = false, features = [
     "small_rng",
 ] }
 rand_distr = "0.4.3"
+rayon = "1.10"
 serde = { version = "1.0.196", features = ["derive"] }
 serde_json = { version = "1.0.113" }
 statrs = "0.18.0"
