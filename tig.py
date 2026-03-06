@@ -10,6 +10,14 @@ import time
 import json
 
 
+try:
+    subprocess.run(["cargo", "version"], check=True)
+except Exception as e:
+    print(f"Error: Cargo is not installed")
+    print("Please install Cargo: https://doc.rust-lang.org/cargo/getting-started/installation.html")
+    exit(1)
+
+
 def generate_datasets(challenge: str):
     if not os.path.exists("target/release/tig_generator"):
         print("Building tig_generator")
