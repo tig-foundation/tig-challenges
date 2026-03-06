@@ -1,11 +1,15 @@
 use crate::QUALITY_PRECISION;
 mod algorithm;
-pub use algorithm::*;
 mod baselines;
+mod challenge;
+mod solution;
+
+pub use algorithm::*;
+pub use challenge::*;
+pub use solution::*;
 
 use anyhow::{anyhow, Result};
 use rand::{rngs::SmallRng, Rng, SeedableRng};
-use serde::{Deserialize, Serialize};
 use statrs::function::erf::{erf, erf_inv};
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
@@ -14,35 +18,6 @@ impl_kv_string_serde! {
     Track {
         n_nodes: usize,
     }
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Solution {
-    routes: Vec<Vec<usize>>,
-}
-
-impl Solution {
-    pub fn new() -> Self {
-        Self { routes: Vec::new() }
-    }
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Challenge {
-    pub seed: [u8; 32],
-    pub num_nodes: usize,
-    pub demands: Vec<i32>,
-    pub node_positions: Vec<(i32, i32)>,
-    pub distance_matrix: Vec<Vec<i32>>,
-    pub max_capacity: i32,
-    pub fleet_size: usize,
-    pub service_time: i32,
-    pub ready_times: Vec<i32>,
-    pub due_times: Vec<i32>,
-    #[cfg(not(feature = "hide_verification"))]
-    pub greedy_baseline_total_distance: u32,
-    #[cfg(feature = "hide_verification")]
-    greedy_baseline_total_distance: u32,
 }
 
 impl Challenge {
@@ -154,12 +129,9 @@ impl Challenge {
             service_time,
             ready_times,
             due_times,
-            greedy_baseline_total_distance: 0,
         };
 
         let greedy_baseline_solution = c.compute_greedy_baseline()?;
-        c.greedy_baseline_total_distance =
-            c.evaluate_total_distance(&greedy_baseline_solution)? as u32;
         c.fleet_size = greedy_baseline_solution.routes.len() + 2;
 
         Ok(c)
@@ -237,27 +209,13 @@ impl Challenge {
     );
 
     conditional_pub!(
-        fn compute_sota_baseline(&self) -> Result<Solution> {
-            Err(anyhow!("Not implemented yet"))
-        }
-    );
-
-    conditional_pub!(
         fn evaluate_solution(&self, solution: &Solution) -> Result<i32> {
             let total_distance = self.evaluate_total_distance(solution)?;
-            // TODO: implement SOTA baseline
-            let sota_total_distance = self.greedy_baseline_total_distance;
-            // if total_distance > greedy_total_distance {
-            //     return Err(anyhow!(
-            //         "Total distance {} is greater than greedy baseline distance {}",
-            //         total_distance,
-            //         greedy_total_distance
-            //     ));
-            // }
-            // let sota_solution = self.compute_sota_baseline()?;
-            // let sota_total_distance = self.evaluate_total_distance(&sota_solution)?;
-            let quality =
-                (sota_total_distance as f64 - total_distance as f64) / sota_total_distance as f64;
+            let greedy_baseline_solution = self.compute_greedy_baseline()?;
+            let greedy_baseline_total_distance =
+                self.evaluate_total_distance(&greedy_baseline_solution)?;
+            let quality = (greedy_baseline_total_distance as f64 - total_distance as f64)
+                / greedy_baseline_total_distance as f64;
             let quality = quality.clamp(-10.0, 10.0) * QUALITY_PRECISION as f64;
             let quality = quality.round() as i32;
             Ok(quality)

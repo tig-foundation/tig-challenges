@@ -1,10 +1,13 @@
 mod algorithm;
 mod baselines;
+mod challenge;
 mod scenarios;
+mod solution;
 
 use crate::QUALITY_PRECISION;
 pub use algorithm::*;
 use anyhow::{anyhow, Result};
+pub use challenge::*;
 use rand::{
     distributions::Distribution,
     rngs::{SmallRng, StdRng},
@@ -12,7 +15,7 @@ use rand::{
 };
 use rand_distr::Normal;
 use scenarios::*;
-use serde::{Deserialize, Serialize};
+pub use solution::*;
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 
@@ -21,30 +24,6 @@ impl_kv_string_serde! {
         n: usize,
         s: Scenario
     }
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Solution {
-    job_schedule: Vec<Vec<(usize, u32)>>,
-}
-
-impl Solution {
-    pub fn new() -> Self {
-        Self {
-            job_schedule: Vec::new(),
-        }
-    }
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Challenge {
-    pub seed: [u8; 32],
-    pub num_jobs: usize,
-    pub num_machines: usize,
-    pub num_operations: usize,
-    pub jobs_per_product: Vec<usize>,
-    // each product has a sequence of operations, and each operation has a map of eligible machines to processing times
-    pub product_processing_times: Vec<Vec<HashMap<usize, u32>>>,
 }
 
 impl Challenge {
@@ -276,18 +255,6 @@ impl Challenge {
     }
 
     conditional_pub!(
-        fn compute_greedy_baseline(&self) -> Result<Solution> {
-            let solution = RefCell::new(Solution::new());
-            let save_solution_fn = |s: &Solution| -> Result<()> {
-                *solution.borrow_mut() = s.clone();
-                Ok(())
-            };
-            baselines::dispatching_rules::solve_challenge_with_effort(self, &save_solution_fn, 0)?;
-            Ok(solution.into_inner())
-        }
-    );
-
-    conditional_pub!(
         fn compute_sota_baseline(&self) -> Result<Solution> {
             let solution = RefCell::new(Solution::new());
             let save_solution_fn = |s: &Solution| -> Result<()> {
@@ -302,15 +269,6 @@ impl Challenge {
     conditional_pub!(
         fn evaluate_solution(&self, solution: &Solution) -> Result<i32> {
             let makespan = self.evaluate_makespan(solution)?;
-            let greedy_solution = self.compute_greedy_baseline()?;
-            let greedy_makespan = self.evaluate_makespan(&greedy_solution)?;
-            if makespan > greedy_makespan {
-                return Err(anyhow!(
-                    "Makespan {} must be better than greedy baseline makespan {}",
-                    makespan,
-                    greedy_makespan
-                ));
-            }
             let sota_solution = self.compute_sota_baseline()?;
             let sota_makespan = self.evaluate_makespan(&sota_solution)?;
             let quality = (sota_makespan as f64 - makespan as f64) / sota_makespan as f64;

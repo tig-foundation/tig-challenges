@@ -1,7 +1,11 @@
 mod algorithm;
+mod challenge;
+mod solution;
 
 use crate::QUALITY_PRECISION;
 pub use algorithm::*;
+pub use challenge::*;
+pub use solution::*;
 use anyhow::{anyhow, Result};
 use ndarray::{Array2, Axis};
 use rand::{
@@ -9,33 +13,12 @@ use rand::{
     rngs::{SmallRng, StdRng},
     Rng, SeedableRng,
 };
-use serde::{Deserialize, Serialize};
 
 impl_kv_string_serde! {
     Track {
         n_vars: usize,
         ratio: u32
     }
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Solution {
-    variables: Vec<bool>,
-}
-
-impl Solution {
-    pub fn new() -> Self {
-        Self {
-            variables: Vec::new(),
-        }
-    }
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Challenge {
-    pub seed: [u8; 32],
-    pub num_variables: usize,
-    pub clauses: Vec<Vec<i32>>,
 }
 
 impl Challenge {
@@ -77,18 +60,19 @@ impl Challenge {
 
     conditional_pub!(
         fn evaluate_solution(&self, solution: &Solution) -> Result<i32> {
-            if solution.variables.len() != self.num_variables {
+            let vars = &solution.assignment;
+            if vars.len() != self.num_variables {
                 return Err(anyhow!(
                     "Invalid number of variables. Expected: {}, Actual: {}",
                     self.num_variables,
-                    solution.variables.len()
+                    vars.len()
                 ));
             }
 
             if self.clauses.iter().all(|clause| {
                 clause.iter().any(|&literal| {
                     let var_idx = literal.abs() as usize - 1;
-                    let var_value = solution.variables[var_idx];
+                    let var_value = vars[var_idx];
                     (literal > 0 && var_value) || (literal < 0 && !var_value)
                 })
             }) {

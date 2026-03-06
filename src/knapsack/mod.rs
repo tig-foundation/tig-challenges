@@ -1,11 +1,14 @@
 mod algorithm;
 mod baselines;
+mod challenge;
+mod solution;
 
 use crate::QUALITY_PRECISION;
 pub use algorithm::*;
 use anyhow::{anyhow, Result};
+pub use challenge::*;
 use rand::{rngs::SmallRng, Rng, SeedableRng};
-use serde::{Deserialize, Serialize};
+pub use solution::*;
 use std::{cell::RefCell, collections::HashSet, f64::consts::PI};
 
 /// Generate a sample from lognormal distribution using Box-Muller transform
@@ -21,27 +24,6 @@ impl_kv_string_serde! {
         n_items: usize,
         budget: u32,
     }
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Solution {
-    items: Vec<usize>,
-}
-
-impl Solution {
-    pub fn new() -> Self {
-        Self { items: Vec::new() }
-    }
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Challenge {
-    pub seed: [u8; 32],
-    pub num_items: usize,
-    pub weights: Vec<u32>,
-    pub values: Vec<u32>,
-    pub interaction_values: Vec<Vec<i32>>,
-    pub max_weight: u32,
 }
 
 impl Challenge {
@@ -210,28 +192,12 @@ impl Challenge {
     );
 
     conditional_pub!(
-        fn compute_sota_baseline(&self) -> Result<Solution> {
-            Err(anyhow!("Not implemented yet"))
-        }
-    );
-
-    conditional_pub!(
         fn evaluate_solution(&self, solution: &Solution) -> Result<i32> {
             let total_value = self.evaluate_total_value(solution)?;
             let greedy_solution = self.compute_greedy_baseline()?;
             let greedy_total_value = self.evaluate_total_value(&greedy_solution)?;
-            // TODO: implement SOTA baseline
-            let sota_total_value = greedy_total_value;
-            // if total_value < greedy_total_value {
-            //     return Err(anyhow!(
-            //         "Total value {} is less than greedy baseline value {}",
-            //         total_value,
-            //         greedy_total_value
-            //     ));
-            // }
-            // let sota_solution = self.compute_sota_baseline()?;
-            // let sota_total_value = self.evaluate_total_value(&sota_solution)?;
-            let quality = (total_value as f64 - sota_total_value as f64) / sota_total_value as f64;
+            let quality =
+                (total_value as f64 - greedy_total_value as f64) / greedy_total_value as f64;
             let quality = quality.clamp(-10.0, 10.0) * QUALITY_PRECISION as f64;
             let quality = quality.round() as i32;
             Ok(quality)
