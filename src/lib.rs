@@ -4,10 +4,10 @@ const QUALITY_PRECISION: i32 = 1_000_000;
 
 macro_rules! conditional_pub {
     (fn $name:ident $($rest:tt)*) => {
-        #[cfg(feature = "evaluate")]
+        #[cfg(not(feature = "hide_evaluate"))]
         pub fn $name $($rest)*
 
-        #[cfg(not(feature = "evaluate"))]
+        #[cfg(feature = "hide_evaluate")]
         fn $name $($rest)*
     };
 }
@@ -86,7 +86,14 @@ macro_rules! impl_kv_string_serde {
     };
 }
 
+#[cfg(feature = "job_scheduling")]
 pub mod job_scheduling;
+
+#[cfg(feature = "knapsack")]
 pub mod knapsack;
+
+#[cfg(feature = "satisfiability")]
 pub mod satisfiability;
+
+#[cfg(feature = "vehicle_routing")]
 pub mod vehicle_routing;

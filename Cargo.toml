@@ -20,5 +20,29 @@ serde = { version = "1.0.196", features = ["derive"] }
 serde_json = { version = "1.0.113" }
 statrs = "0.18.0"
 
+[[bin]]
+name = "tig_generator"
+path = "src/main_generator.rs"
+required-features = ["generator"]
+
+[[bin]]
+name = "tig_solver"
+path = "src/main_solver.rs"
+required-features = ["solver"]
+
+[[bin]]
+name = "tig_evaluator"
+path = "src/main_evaluator.rs"
+required-features = ["evaluator"]
+
 [features]
-evaluate = []
+hide_evaluate = []
+satisfiability = []
+knapsack = []
+vehicle_routing = []
+job_scheduling = []
+
+# Convenience feature sets for the bins.
+generator = ["satisfiability", "knapsack", "vehicle_routing", "job_scheduling"]
+evaluator = ["satisfiability", "knapsack", "vehicle_routing", "job_scheduling"]
+solver = ["hide_evaluate"]

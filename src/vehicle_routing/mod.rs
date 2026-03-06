@@ -34,7 +34,7 @@ impl Challenge {
         let mut cluster_assignments = HashMap::new();
         while node_positions.len() < track.n_nodes {
             let node = node_positions.len();
-            if node <= num_clusters || rng.gen::<f64>() < 0.5 {
+            if node <= num_clusters || rng.r#gen::<f64>() < 0.5 {
                 let pos = (rng.gen_range(0..=1000), rng.gen_range(0..=1000));
                 if node_positions_set.contains(&pos) {
                     continue;
@@ -112,7 +112,7 @@ impl Challenge {
                 due_times[node] = due_times[node].clamp(min_due_time, max_due_time);
             }
 
-            if rng.gen::<f64>() < 0.5 {
+            if rng.r#gen::<f64>() < 0.5 {
                 ready_times[node] = due_times[node] - rng.gen_range(10..=60);
                 ready_times[node] = ready_times[node].max(0);
             }
@@ -232,6 +232,6 @@ fn truncated_normal_sample<T: Rng>(
 ) -> f64 {
     let cdf_min = 0.5 * (1.0 + erf((min_val - mean) / (std_dev * (2.0_f64).sqrt())));
     let cdf_max = 0.5 * (1.0 + erf((max_val - mean) / (std_dev * (2.0_f64).sqrt())));
-    let sample = rng.gen::<f64>() * (cdf_max - cdf_min) + cdf_min;
+    let sample = rng.r#gen::<f64>() * (cdf_max - cdf_min) + cdf_min;
     mean + std_dev * (2.0_f64).sqrt() * erf_inv(2.0 * sample - 1.0)
 }

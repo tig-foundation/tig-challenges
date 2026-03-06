@@ -11,9 +11,9 @@ pub struct Hyperparameters {
 }
 
 pub fn solve_challenge(
-    challenge: &Challenge,
-    save_solution: &dyn Fn(&Solution) -> Result<()>,
-    hyperparameters: &Option<Map<String, Value>>,
+    _challenge: &Challenge,
+    _save_solution: &dyn Fn(&Solution) -> Result<()>,
+    _hyperparameters: &Option<Map<String, Value>>,
 ) -> Result<()> {
     Err(anyhow!("Not implemented"))
 }
