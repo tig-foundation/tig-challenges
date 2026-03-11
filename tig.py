@@ -138,10 +138,10 @@ if __name__ == "__main__":
     
     # generate_datasets subcommand
     generate_parser = subparsers.add_parser("generate_datasets", help="Generate datasets")
-    generate_parser.add_argument("challenge", choices=["satisfiability", "knapsack", "vehicle_routing", "job_scheduling"], help="Challenge name")
+    generate_parser.add_argument("challenge", choices=["knapsack", "vehicle_routing", "job_scheduling"], help="Challenge name")
     # test_algorithm subcommand
     test_parser = subparsers.add_parser("test_algorithm", help="Test the algorithm")
-    test_parser.add_argument("challenge", choices=["satisfiability", "knapsack", "vehicle_routing", "job_scheduling"], help="Challenge name")
+    test_parser.add_argument("challenge", choices=["knapsack", "vehicle_routing", "job_scheduling"], help="Challenge name")
     test_parser.add_argument("dataset_dir", help="Dataset directory")
     test_parser.add_argument("--workers", type=int, default=1, help="Number of worker threads")
     test_parser.add_argument("--hyperparameters", help="Hyperparameters string")

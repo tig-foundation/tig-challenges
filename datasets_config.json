@@ -1,31 +1,4 @@
 {
-    "satisfiability": {
-        "n_vars=10000,ratio=4267": {
-            "train": 100,
-            "test": 100,
-            "val": 100
-        },
-        "n_vars=100000,ratio=4150": {
-            "train": 100,
-            "test": 100,
-            "val": 100
-        },
-        "n_vars=100000,ratio=4200": {
-            "train": 100,
-            "test": 100,
-            "val": 100
-        },
-        "n_vars=5000,ratio=4267": {
-            "train": 100,
-            "test": 100,
-            "val": 100
-        },
-        "n_vars=7500,ratio=4267": {
-            "train": 100,
-            "test": 100,
-            "val": 100
-        }
-    },
     "vehicle_routing": {
         "n_nodes=600": {
             "train": 100,

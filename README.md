@@ -16,7 +16,7 @@ Generate datasets for a specific challenge using the Python CLI. Splits (e.g. `t
 python3 tig.py generate_datasets <challenge>
 ```
 
-Example: `python3 tig.py generate_datasets satisfiability` generates instances for all tracks and splits configured for satisfiability. Output is written under `datasets/<challenge>/<split>/<track>/`.
+Example: `python3 tig.py generate_datasets knapsack` generates instances for all tracks and splits configured for knapsack. Output is written under `datasets/<challenge>/<split>/<track>/`.
 
 **Pre-computed instances:** *(Coming soon — [download pre-computed instances](#) for all challenges and splits.)*
 
@@ -53,7 +53,6 @@ tig.test_algorithm("job_scheduling", "datasets/job_scheduling/test/n=50,s=flow_s
 
 - **[knapsack](src/knapsack/README.md)** — Select items to maximize value under a weight constraint, with pairwise interaction values (quadratic knapsack / team formation). [Challenge Design](https://docs.tig.foundation/static/knapsack.pdf).
 - **[job_scheduling](src/job_scheduling/README.md)** — Schedule operations on eligible machines to minimize makespan (Flexible Job Shop). [Challenge Design](https://docs.tig.foundation/static/jssp.pdf).
-- **[satisfiability](src/satisfiability/README.md)** — Determine whether a Boolean formula (e.g. 3-SAT) has a satisfying truth assignment.
 - **[vehicle_routing](src/vehicle_routing/README.md)** — Route a fleet of vehicles from a depot to serve customers with time windows and capacity constraints (VRPTW). [Challenge Design](https://docs.tig.foundation/static/vrptw.pdf).
 
 ### SOTA results
@@ -88,7 +87,7 @@ cargo build -r --bin tig_generator --features generator
 
 | Argument / Option | Description |
 |-------------------|-------------|
-| `<challenge>`     | Challenge name: `satisfiability`, `knapsack`, `vehicle_routing`, `job_scheduling`. |
+| `<challenge>`     | Challenge name: `knapsack`, `vehicle_routing`, `job_scheduling`. |
 | `<track>`         | Track specification: `key=value,key=value` (challenge-specific). See [Recommended tracks](#recommended-tracks) below. |
 | `--seed <seed>`   | *(Optional)* Random seed string (hashed for instance generation). Default: `0`. |
 | `-n, --n <N>`     | *(Optional)* Number of instances to generate. Default: `1`. |
@@ -106,7 +105,7 @@ Run the solver on a single instance and write the solution to a file. Each time 
 ```bash
 cargo build -r --bin tig_solver --no-default-features --features "solver,<challenge>"
 ```
-Example: `--features "solver,knapsack"` or `--features "solver,satisfiability,knapsack,vehicle_routing,job_scheduling"` for all.
+Example: `--features "solver,knapsack"` or `--features "solver,knapsack,vehicle_routing,job_scheduling"` for all.
 
 **Run:**
 ```bash
@@ -141,13 +140,6 @@ Output: quality score printed to stdout.
 ## Recommended tracks
 
 Use these track strings with `generate` (track format is `key=value,key=value`; pass as a single argument, optionally quoted).
-
-**satisfiability**
-- `"n_vars=10000,ratio=4267"`
-- `"n_vars=100000,ratio=4150"`
-- `"n_vars=100000,ratio=4200"`
-- `"n_vars=5000,ratio=4267"`
-- `"n_vars=7500,ratio=4267"`
 
 **vehicle_routing**
 - `"n_nodes=600"`

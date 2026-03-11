@@ -92,8 +92,5 @@ pub mod job_scheduling;
 #[cfg(feature = "knapsack")]
 pub mod knapsack;
 
-#[cfg(feature = "satisfiability")]
-pub mod satisfiability;
-
 #[cfg(feature = "vehicle_routing")]
 pub mod vehicle_routing;
