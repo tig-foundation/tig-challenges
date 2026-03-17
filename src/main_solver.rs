@@ -9,7 +9,7 @@ fn cli() -> Command {
     Command::new("tig-challenges-solver")
         .about("TIG challenge solver")
         .arg(
-            arg!(<CHALLENGE> "Challenge name: satisfiability, knapsack, vehicle_routing, job_scheduling")
+            arg!(<CHALLENGE> "Challenge name: knapsack, vehicle_routing, job_scheduling")
                 .value_parser(value_parser!(String)),
         )
         .arg(
@@ -50,8 +50,6 @@ fn run_solve(
     }
 
     match challenge {
-        #[cfg(feature = "satisfiability")]
-        "satisfiability" => dispatch_solve!(satisfiability),
         #[cfg(feature = "knapsack")]
         "knapsack" => dispatch_solve!(knapsack),
         #[cfg(feature = "vehicle_routing")]

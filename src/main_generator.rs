@@ -9,7 +9,7 @@ fn cli() -> Command {
     Command::new("tig-challenges-generator")
         .about("TIG challenge instance generation")
         .arg(
-            arg!(<CHALLENGE> "Challenge name: satisfiability, knapsack, vehicle_routing, job_scheduling")
+            arg!(<CHALLENGE> "Challenge name: knapsack, vehicle_routing, job_scheduling")
                 .value_parser(value_parser!(String)),
         )
         .arg(
@@ -72,7 +72,6 @@ fn run_generate(
     }
 
     match challenge {
-        "satisfiability" => dispatch_generate!(satisfiability),
         "knapsack" => dispatch_generate!(knapsack),
         "vehicle_routing" => dispatch_generate!(vehicle_routing),
         "job_scheduling" => dispatch_generate!(job_scheduling),
