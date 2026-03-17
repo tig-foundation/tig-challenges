@@ -10,13 +10,13 @@ This repo provides a unified CLI and data formats so you can generate instances,
 
 ### 1. Generate or obtain datasets
 
-Generate datasets for a specific challenge using the Python CLI. Splits (e.g. `train`, `val`, `test`) and tracks are defined in **`datasets_config.json`**:
+Generate datasets for a specific challenge using the Python CLI. Splits and tracks are defined in per-challenge config files (`datasets_config_knapsack.json`, `datasets_config_vehicle_routing.json`, `datasets_config_job_scheduling.json`):
 
 ```bash
 python3 tig.py generate_datasets <challenge>
 ```
 
-Example: `python3 tig.py generate_datasets satisfiability` generates instances for all tracks and splits configured for satisfiability. Output is written under `datasets/<challenge>/<split>/<track>/`.
+Example: `python3 tig.py generate_datasets knapsack` generates instances for all tracks and splits configured for the quadratic knapsack problem. Output is written under `datasets/<challenge>/<split>/<track>/`.
 
 **Pre-computed instances:** *(Coming soon — [download pre-computed instances](#) for all challenges and splits.)*
 

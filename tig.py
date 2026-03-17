@@ -22,7 +22,7 @@ def generate_datasets(challenge: str):
     if not os.path.exists("target/release/tig_generator"):
         print("Building tig_generator")
         subprocess.run(["cargo", "build", "-r", "--bin", "tig_generator", "--features", "generator"], check=True)
-    with open("datasets_config.json", "r") as f:
+    with open(f"datasets_config_{challenge}.json", "r") as f:
         datasets_config = json.load(f)[challenge]
     for track_id, config in datasets_config.items():
         for split, n in config.items():
