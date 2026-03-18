@@ -155,9 +155,14 @@ def run_algorithm(
     timeout: int = 60,
     interval: float = None,
     out_dir: str = None,
+    baseline: bool = False,
 ) -> list:
-    logger.info("Building `tig_solver` (release, features=solver,%s)", challenge)
-    subprocess.run(["cargo", "build", "-r", "--bin", "tig_solver", "--features", f"solver,{challenge}"], check=True)
+    if baseline:
+        logger.info("Building `tig_solver` (release, features=solver,baseline,%s)", challenge)
+        subprocess.run(["cargo", "build", "-r", "--bin", "tig_solver", "--features", f"solver,baseline,{challenge}"], check=True)
+    else:
+        logger.info("Building `tig_solver` (release, features=solver,%s)", challenge)
+        subprocess.run(["cargo", "build", "-r", "--bin", "tig_solver", "--features", f"solver,{challenge}"], check=True)
     
     pool = ThreadPoolExecutor(max_workers=num_workers)
 
@@ -292,6 +297,7 @@ if __name__ == "__main__":
     run_parser.add_argument("--timeout", type=int, default=60, help="Timeout in seconds")
     run_parser.add_argument("--interval", type=float, default=None, help="Interval (seconds) to snapshot the latest solution")
     run_parser.add_argument("--out", default=None, help="Output directory for saving solutions (created if missing)")
+    run_parser.add_argument("--baseline", action="store_true", help="Run the baseline algorithm")
     
     # evaluate_solutions subcommand
     evaluate_parser = subparsers.add_parser("evaluate_solutions", help="Evaluate solutions")
@@ -319,6 +325,7 @@ if __name__ == "__main__":
                 args.timeout,
                 args.interval,
                 args.out,
+                args.baseline,
             )
         elif args.command == "evaluate_solutions":
             logger.info("Command: evaluate_solutions (challenge=%s)", args.challenge)

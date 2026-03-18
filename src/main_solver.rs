@@ -43,7 +43,18 @@ fn run_solve(
                 fs::write(&solution_file, solution.to_txt())?;
                 Ok(())
             };
-            challenges::$c::solve_challenge(&instance, &save_solution_fn, hyperparameters)?;
+            #[cfg(not(feature = "baseline"))]
+            challenges::$c::algorithm::solve_challenge(
+                &instance,
+                &save_solution_fn,
+                hyperparameters,
+            )?;
+            #[cfg(feature = "baseline")]
+            challenges::$c::baseline::solve_challenge(
+                &instance,
+                &save_solution_fn,
+                hyperparameters,
+            )?;
         }};
     }
 

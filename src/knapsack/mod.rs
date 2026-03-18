@@ -1,8 +1,10 @@
-mod algorithm;
+#[cfg(not(feature = "baseline"))]
+pub mod algorithm;
+#[cfg(feature = "baseline")]
+pub mod baseline;
 mod challenge;
 mod solution;
 
-pub use algorithm::*;
 use anyhow::{anyhow, Result};
 pub use challenge::*;
 use rand::{rngs::SmallRng, Rng, SeedableRng};
