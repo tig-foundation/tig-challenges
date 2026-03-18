@@ -11,6 +11,7 @@ import time
 import json
 import shutil
 
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 logger = logging.getLogger("tig")
 
@@ -37,25 +38,31 @@ def require_cargo() -> None:
         raise SystemExit(1)
 
 
-def generate_datasets(challenge: str):
-    if not os.path.exists("target/release/tig_generator"):
+def generate_dataset(challenge: str, config_path: str, out_dir: str):
+    if not os.path.exists(f"{ROOT_DIR}/target/release/tig_generator"):
         logger.info("Building `tig_generator` (release)")
-        subprocess.run(["cargo", "build", "-r", "--bin", "tig_generator", "--features", "generator"], check=True)
-    with open("datasets_config.json", "r") as f:
-        datasets_config = json.load(f)[challenge]
-    for track_id, config in datasets_config.items():
-        for split, n in config.items():
-            start = time.time()
-            logger.info("Generating %s/%s instances (seed=%s, n=%s)", challenge, track_id, split, n)
-            subprocess.run([
-                "./target/release/tig_generator",
-                challenge,
-                track_id,
-                "--seed", split,
-                "-n", str(n),
-                "-o", f"datasets/{challenge}/{split}/{track_id}",
-            ], check=True)
-            logger.info("Generated in %.2fs", time.time() - start)
+        subprocess.run(
+            ["cargo", "build", "-r", "--bin", "tig_generator", "--features", "generator"],
+            check=True,
+            cwd=ROOT_DIR,
+        )
+    with open(config_path, "r") as f:
+        config = json.load(f)
+    seed = config.pop("seed")
+    if out_dir is None:
+        out_dir = os.path.join("datasets", challenge, seed)
+    for track_id, n in config.items():
+        start = time.time()
+        logger.info("Generating %s/%s instances (seed=%s, n=%s)", challenge, track_id, seed, n)
+        subprocess.run([
+            f"{ROOT_DIR}/target/release/tig_generator",
+            challenge,
+            track_id,
+            "--seed", seed,
+            "-n", str(n),
+            "-o", os.path.join(out_dir, track_id),
+        ], check=True)
+        logger.info("Generated in %.2fs", time.time() - start)
 
 def run_algorithm_on_instance(
     challenge: str,
@@ -147,10 +154,18 @@ def run_algorithm(
 ) -> list:
     if baseline:
         logger.info("Building `tig_solver` (release, features=solver,baseline,%s)", challenge)
-        subprocess.run(["cargo", "build", "-r", "--bin", "tig_solver", "--features", f"solver,baseline,{challenge}"], check=True)
+        subprocess.run(
+            ["cargo", "build", "-r", "--bin", "tig_solver", "--features", f"solver,baseline,{challenge}"],
+            check=True,
+            cwd=ROOT_DIR,
+        )
     else:
         logger.info("Building `tig_solver` (release, features=solver,%s)", challenge)
-        subprocess.run(["cargo", "build", "-r", "--bin", "tig_solver", "--features", f"solver,{challenge}"], check=True)
+        subprocess.run(
+            ["cargo", "build", "-r", "--bin", "tig_solver", "--features", f"solver,{challenge}"],
+            check=True,
+            cwd=ROOT_DIR,
+        )
     
     pool = ThreadPoolExecutor(max_workers=num_workers)
 
@@ -203,7 +218,7 @@ def evaluate_solution(
     for s in solutions:
         solution_file = os.path.join(solutions_dir, s)
         cmd = [
-            "target/release/tig_evaluator",
+            f"{ROOT_DIR}/target/release/tig_evaluator",
             challenge,
             os.path.join(dataset_dir, instance_file),
             solution_file,
@@ -242,7 +257,11 @@ def evaluate_solutions(
 ) -> list:
     if not os.path.exists("target/release/tig_evaluator"):
         logger.info("Building `tig_evaluator` (release)")
-        subprocess.run(["cargo", "build", "-r", "--bin", "tig_evaluator", "--features", "evaluator"], check=True)
+        subprocess.run(
+            ["cargo", "build", "-r", "--bin", "tig_evaluator", "--features", "evaluator"],
+            check=True,
+            cwd=ROOT_DIR,
+        )
     instances = [
         os.path.relpath(path, dataset_dir)
         for path in glob.glob(f"{dataset_dir}/**/*.txt", recursive=True)
@@ -254,9 +273,6 @@ def evaluate_solutions(
         num_workers,
         csv_path,
     )
-    logger.debug("Dataset dir: %s", dataset_dir)
-    logger.debug("Solutions dir: %s", solutions_dir)
-    logger.debug("CSV path: %s", csv_path)
     
     pool = ThreadPoolExecutor(max_workers=num_workers)
     results = [
@@ -282,9 +298,11 @@ if __name__ == "__main__":
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
     parser.add_argument("--log-level", default="info", choices=["debug", "info", "warning", "error"], help="Logging level")
     
-    # generate_datasets subcommand
-    generate_parser = subparsers.add_parser("generate_datasets", help="Generate datasets")
+    # generate_dataset subcommand
+    generate_parser = subparsers.add_parser("generate_dataset", help="Generate datasets")
     generate_parser.add_argument("challenge", choices=["knapsack", "vehicle_routing", "job_scheduling"], help="Challenge name")
+    generate_parser.add_argument("config", help="Dataset config file path")
+    generate_parser.add_argument("--out", default=None, help="Output directory for dataset (defaults to datasets/<challenge>)")
     # run_algorithm subcommand
     run_parser = subparsers.add_parser("run_algorithm", help="Run the algorithm on datasets")
     run_parser.add_argument("challenge", choices=["knapsack", "vehicle_routing", "job_scheduling"], help="Challenge name")
@@ -293,7 +311,7 @@ if __name__ == "__main__":
     run_parser.add_argument("--hyperparameters", help="Hyperparameters string")
     run_parser.add_argument("--timeout", type=int, default=60, help="Timeout in seconds")
     run_parser.add_argument("--interval", type=int, default=None, help="Interval (seconds) to snapshot the latest solution")
-    run_parser.add_argument("--out", default=None, help="Output directory for saving solutions (created if missing)")
+    run_parser.add_argument("--out", default=None, help="Output directory for saving solutions (defaults to dataset directory)")
     run_parser.add_argument("--baseline", action="store_true", help="Run the baseline algorithm")
     run_parser.add_argument("--csv", default=None, help="CSV file path for saving results")
     
@@ -310,11 +328,11 @@ if __name__ == "__main__":
     require_cargo()
     
     try:
-        if args.command == "generate_datasets":
-            logger.info("Command: generate_datasets (challenge=%s)", args.challenge)
-            generate_datasets(args.challenge)
+        if args.command == "generate_dataset":
+            logger.info("\n\tcommand=generate_dataset\n\tchallenge=%s\n\tconfig=%s\n\tout=%s", args.challenge, args.config, args.out)
+            generate_dataset(args.challenge, args.config, args.out)
         elif args.command == "run_algorithm":
-            logger.info("Command: run_algorithm (challenge=%s)", args.challenge)
+            logger.info("\n\tcommand=run_algorithm\n\tchallenge=%s\n\tdataset_dir=%s\n\tworkers=%s\n\thyperparameters=%s\n\ttimeout=%s\n\tinterval=%s\n\tout=%s\n\tbaseline=%s\n\tcsv=%s", args.challenge, args.dataset_dir, args.workers, args.hyperparameters, args.timeout, args.interval, args.out, args.baseline, args.csv)
             run_algorithm(
                 args.challenge,
                 args.dataset_dir,
@@ -327,7 +345,7 @@ if __name__ == "__main__":
                 args.csv,
             )
         elif args.command == "evaluate_solutions":
-            logger.info("Command: evaluate_solutions (challenge=%s)", args.challenge)
+            logger.info("\n\tcommand=evaluate_solutions\n\tchallenge=%s\n\tdataset_dir=%s\n\tsolutions=%s\n\tworkers=%s\n\tcsv=%s", args.challenge, args.dataset_dir, args.solutions, args.workers, args.csv)
             evaluate_solutions(
                 args.challenge,
                 args.dataset_dir,
