@@ -63,11 +63,11 @@ def run_algorithm_on_instance(
     instance_file: str,
     hyperparameters: str = None,
     timeout: int = 60,
-    interval: float = None,
+    interval: int = None,
     out_dir: str = None,
 ) -> tuple:
     try:
-        time_taken, memory = -1, None
+        time_taken, memory = None, None
         if out_dir:
             os.makedirs(
                 os.path.join(out_dir, os.path.dirname(instance_file)),
@@ -80,7 +80,8 @@ def run_algorithm_on_instance(
 
         cmd = [
             "/usr/bin/time",
-            "-f", "Memory: %M",
+            "-f", "Time: %e Memory: %M",
+            "timeout", str(timeout),
             "target/release/tig_solver",
             challenge,
             os.path.join(dataset_dir, instance_file),
@@ -90,21 +91,19 @@ def run_algorithm_on_instance(
             cmd += ["--hyperparameters", hyperparameters]
         logger.debug("Solver command: %s", " ".join(cmd))
 
-        start_time = time.time()
-        deadline = start_time + timeout
         snapshot_count = 0
         if interval:
-            next_snapshot_at = start_time + interval
+            next_snapshot_at = time.time() + interval
         else:
             next_snapshot_at = None
 
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        stdout, stderr = None, None
+        proc = subprocess.Popen(cmd, stderr=subprocess.PIPE, text=True)
+        stderr = None
         while True:
             now = time.time()
             if next_snapshot_at is not None and now >= next_snapshot_at:
                 snapshot_count += 1
-                snapshot_path = f"{solution_path}.{snapshot_count}"
+                snapshot_path = f"{solution_path}.{snapshot_count * interval}"
                 if os.path.exists(solution_path):
                     shutil.copy2(solution_path, snapshot_path)
                     logger.debug("Snapshot %s -> %s", solution_path, snapshot_path)
@@ -112,34 +111,22 @@ def run_algorithm_on_instance(
                     logger.debug("Snapshot skipped; solution does not exist yet: %s", solution_path)
                 next_snapshot_at += interval
 
-            if now >= deadline:
-                break
-
             try:
-                stdout, stderr = proc.communicate(timeout=0.1)
+                _, stderr = proc.communicate(timeout=0.1)
                 break
             except subprocess.TimeoutExpired:
                 pass
-        if stdout is None:
-            logger.warning("Solver timed out after %ss: %s", timeout, instance_file)
-            proc.kill()
-            try:
-                stdout, stderr = proc.communicate(timeout=0.1)
-            except subprocess.TimeoutExpired:
-                pass
-            
-        if stdout is not None:
-            for line in (stdout or "").strip().split("\n"):
-                if line.startswith("Time:"):
-                    time_taken = float(line.split(":")[1].strip())
-            for line in (stderr or "").strip().split("\n"):
-                if line.startswith("Memory:"):
-                    memory = int(line.split(":")[1].strip())
+        
+        for line in (stderr or "").strip().split("\n"):
+            if line.startswith("Time:"):
+                parts = line.split(" ")
+                time_taken = float(parts[1].strip())
+                memory = int(parts[3].strip())
 
         logger.info(
             "Solved %s | time=%.3fs memory=%sKB",
             instance_file,
-            time_taken,
+            time_taken or -1,
             memory,
         )
         return instance_file, time_taken, memory
@@ -153,9 +140,10 @@ def run_algorithm(
     num_workers: int = 1,
     hyperparameters: str = None,
     timeout: int = 60,
-    interval: float = None,
+    interval: int = None,
     out_dir: str = None,
     baseline: bool = False,
+    csv_path: str = None,
 ) -> list:
     if baseline:
         logger.info("Building `tig_solver` (release, features=solver,baseline,%s)", challenge)
@@ -181,10 +169,19 @@ def run_algorithm(
     )
     logger.debug("Dataset dir: %s", dataset_dir)
     
-    return list(pool.map(
+    results = list(pool.map(
         lambda instance: run_algorithm_on_instance(challenge, dataset_dir, instance, hyperparameters, timeout, interval, out_dir),
         instances
     ))
+
+    if csv_path:
+        with open(csv_path, "w") as f:
+            writer = csv.writer(f)
+            writer.writerow(["instance_file", "time_taken", "memory"])
+            for result in results:
+                writer.writerow(result)
+
+    return results
 
 def evaluate_solution(
     challenge: str,
@@ -295,9 +292,10 @@ if __name__ == "__main__":
     run_parser.add_argument("--workers", type=int, default=1, help="Number of worker threads")
     run_parser.add_argument("--hyperparameters", help="Hyperparameters string")
     run_parser.add_argument("--timeout", type=int, default=60, help="Timeout in seconds")
-    run_parser.add_argument("--interval", type=float, default=None, help="Interval (seconds) to snapshot the latest solution")
+    run_parser.add_argument("--interval", type=int, default=None, help="Interval (seconds) to snapshot the latest solution")
     run_parser.add_argument("--out", default=None, help="Output directory for saving solutions (created if missing)")
     run_parser.add_argument("--baseline", action="store_true", help="Run the baseline algorithm")
+    run_parser.add_argument("--csv", default=None, help="CSV file path for saving results")
     
     # evaluate_solutions subcommand
     evaluate_parser = subparsers.add_parser("evaluate_solutions", help="Evaluate solutions")
@@ -326,6 +324,7 @@ if __name__ == "__main__":
                 args.interval,
                 args.out,
                 args.baseline,
+                args.csv,
             )
         elif args.command == "evaluate_solutions":
             logger.info("Command: evaluate_solutions (challenge=%s)", args.challenge)
