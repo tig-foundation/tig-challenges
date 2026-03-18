@@ -43,7 +43,7 @@ fn run_evaluate(challenge: &str, instance_file: &Path, solution_file: &Path) -> 
         "job_scheduling" => dispatch_evaluate!(job_scheduling),
         _ => anyhow::bail!("Unknown challenge: {}", challenge),
     };
-    println!("Quality: {}", quality);
+    println!("Result: {}", quality);
     Ok(())
 }
 

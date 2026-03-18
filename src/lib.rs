@@ -1,17 +1,3 @@
-pub const BUILD_TIME_PATH: &str = env!("CARGO_MANIFEST_DIR");
-
-const QUALITY_PRECISION: i32 = 1_000_000;
-
-macro_rules! conditional_pub {
-    (fn $name:ident $($rest:tt)*) => {
-        #[cfg(not(feature = "hide_evaluate"))]
-        pub fn $name $($rest)*
-
-        #[cfg(feature = "hide_evaluate")]
-        fn $name $($rest)*
-    };
-}
-
 macro_rules! impl_kv_string_serde {
     ($name:ident { $( $field:ident : $ty:ty ),* $(,)? }) => {
         paste::paste! {

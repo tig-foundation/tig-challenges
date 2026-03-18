@@ -1,15 +1,13 @@
 mod algorithm;
-mod baselines;
 mod challenge;
 mod solution;
 
-use crate::QUALITY_PRECISION;
 pub use algorithm::*;
 use anyhow::{anyhow, Result};
 pub use challenge::*;
 use rand::{rngs::SmallRng, Rng, SeedableRng};
 pub use solution::*;
-use std::{cell::RefCell, collections::HashSet, f64::consts::PI};
+use std::{collections::HashSet, f64::consts::PI};
 
 /// Generate a sample from lognormal distribution using Box-Muller transform
 fn sample_lognormal(rng: &mut SmallRng, mean: f64, std_dev: f64) -> f64 {
@@ -179,28 +177,7 @@ impl Challenge {
         })
     }
 
-    conditional_pub!(
-        fn compute_greedy_baseline(&self) -> Result<Solution> {
-            let solution = RefCell::new(Solution::new());
-            let save_solution_fn = |s: &Solution| -> Result<()> {
-                *solution.borrow_mut() = s.clone();
-                Ok(())
-            };
-            baselines::tabu_search::solve_challenge(self, &save_solution_fn, &None)?;
-            Ok(solution.into_inner())
-        }
-    );
-
-    conditional_pub!(
-        fn evaluate_solution(&self, solution: &Solution) -> Result<i32> {
-            let total_value = self.evaluate_total_value(solution)?;
-            let greedy_solution = self.compute_greedy_baseline()?;
-            let greedy_total_value = self.evaluate_total_value(&greedy_solution)?;
-            let quality =
-                (total_value as f64 - greedy_total_value as f64) / greedy_total_value as f64;
-            let quality = quality.clamp(-10.0, 10.0) * QUALITY_PRECISION as f64;
-            let quality = quality.round() as i32;
-            Ok(quality)
-        }
-    );
+    pub fn evaluate_solution(&self, solution: &Solution) -> Result<f32> {
+        Ok(self.evaluate_total_value(solution)? as f32)
+    }
 }

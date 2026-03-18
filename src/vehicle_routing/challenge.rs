@@ -29,6 +29,8 @@ fn round_distance(from: (i32, i32), to: (i32, i32)) -> i32 {
 }
 
 impl Challenge {
+    /// Instance generation & solution evaluation is done in the mod.rs file.
+
     /// Serialize to Solomon-style txt format (prettified columns). Seed is not serialized.
     pub fn to_txt(&self) -> String {
         let mut out = String::new();

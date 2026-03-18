@@ -21,6 +21,8 @@ pub struct Challenge {
 }
 
 impl Challenge {
+    /// Instance generation & solution evaluation is done in the mod.rs file.
+    ///
     /// Serialize to the graph txt format.
     pub fn to_txt(&self) -> String {
         let n = self.num_items;
@@ -78,9 +80,15 @@ impl Challenge {
             if edge_parts.len() < 3 {
                 return Err(anyhow!("Edge line must be 'i j u_ij'"));
             }
-            let i: usize = edge_parts[0].parse().map_err(|e| anyhow!("Invalid i: {}", e))?;
-            let j: usize = edge_parts[1].parse().map_err(|e| anyhow!("Invalid j: {}", e))?;
-            let u: i32 = edge_parts[2].parse().map_err(|e| anyhow!("Invalid u_ij: {}", e))?;
+            let i: usize = edge_parts[0]
+                .parse()
+                .map_err(|e| anyhow!("Invalid i: {}", e))?;
+            let j: usize = edge_parts[1]
+                .parse()
+                .map_err(|e| anyhow!("Invalid j: {}", e))?;
+            let u: i32 = edge_parts[2]
+                .parse()
+                .map_err(|e| anyhow!("Invalid u_ij: {}", e))?;
             if i >= n || j >= n {
                 return Err(anyhow!("Edge index out of range: {} {}", i, j));
             }
@@ -92,10 +100,15 @@ impl Challenge {
             }
         }
 
-        let weights_line = lines.next().ok_or_else(|| anyhow!("Missing node weights line"))?;
+        let weights_line = lines
+            .next()
+            .ok_or_else(|| anyhow!("Missing node weights line"))?;
         let weights: Vec<u32> = weights_line
             .split_whitespace()
-            .map(|t| t.parse().map_err(|e| anyhow!("Invalid weight {:?}: {}", t, e)))
+            .map(|t| {
+                t.parse()
+                    .map_err(|e| anyhow!("Invalid weight {:?}: {}", t, e))
+            })
             .collect::<Result<Vec<_>, _>>()?;
         if weights.len() != n {
             return Err(anyhow!(
@@ -105,10 +118,15 @@ impl Challenge {
             ));
         }
 
-        let budgets_line = lines.next().ok_or_else(|| anyhow!("Missing budgets line"))?;
+        let budgets_line = lines
+            .next()
+            .ok_or_else(|| anyhow!("Missing budgets line"))?;
         let budgets: Vec<u32> = budgets_line
             .split_whitespace()
-            .map(|t| t.parse().map_err(|e| anyhow!("Invalid budget {:?}: {}", t, e)))
+            .map(|t| {
+                t.parse()
+                    .map_err(|e| anyhow!("Invalid budget {:?}: {}", t, e))
+            })
             .collect::<Result<Vec<_>, _>>()?;
         let max_weight = budgets.first().copied().unwrap_or(0);
 
@@ -165,11 +183,7 @@ mod tests {
             num_items: 3,
             weights: vec![40, 5, 4],
             values: vec![35, 2, 100],
-            interaction_values: vec![
-                vec![0, 18, 83],
-                vec![18, 0, 12],
-                vec![83, 12, 0],
-            ],
+            interaction_values: vec![vec![0, 18, 83], vec![18, 0, 12], vec![83, 12, 0]],
             max_weight: 25,
         };
         let txt = c.to_txt();
