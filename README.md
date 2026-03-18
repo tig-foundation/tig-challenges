@@ -10,13 +10,13 @@ This repo provides a unified CLI and data formats so you can generate instances,
 
 ### 1. Generate or obtain datasets
 
-Generate datasets for a specific challenge using the Python CLI. Splits and tracks are defined in per-challenge config files (`datasets_config_knapsack.json`, `datasets_config_vehicle_routing.json`, `datasets_config_job_scheduling.json`):
+Generate datasets for a specific challenge using the Python CLI. Splits (e.g. `train`, `val`, `test`) and tracks are defined in **`datasets_config.json`**:
 
 ```bash
 python3 tig.py generate_datasets <challenge>
 ```
 
-Example: `python3 tig.py generate_datasets knapsack` generates instances for all tracks and splits configured for the quadratic knapsack problem. Output is written under `datasets/<challenge>/<split>/<track>/`.
+Example: `python3 tig.py generate_datasets knapsack` generates instances for all tracks and splits configured for knapsack. Output is written under `datasets/<challenge>/<split>/<track>/`.
 
 **Pre-computed instances:** *(Coming soon — [download pre-computed instances](#) for all challenges and splits.)*
 
@@ -156,11 +156,26 @@ Use these track strings with `generate` (track format is `key=value,key=value`; 
 - `"n_items=5000,budget=25"`
 
 **job_scheduling**
-- `"n=50,s=fjsp_high"`
-- `"n=50,s=fjsp_medium"`
-- `"n=50,s=flow_shop"`
-- `"n=50,s=hybrid_flow_shop"`
-- `"n=50,s=job_shop"`
+- `"n_jobs=25,n_machines=15,n_operations=15,s=fjsp_high"`
+- `"n_jobs=25,n_machines=15,n_operations=15,s=fjsp_medium"`
+- `"n_jobs=25,n_machines=15,n_operations=15,s=flow_shop"`
+- `"n_jobs=25,n_machines=15,n_operations=15,s=hybrid_flow_shop"`
+- `"n_jobs=25,n_machines=15,n_operations=15,s=job_shop"`
+- `"n_jobs=50,n_machines=30,n_operations=30,s=fjsp_high"`
+- `"n_jobs=50,n_machines=30,n_operations=30,s=fjsp_medium"`
+- `"n_jobs=50,n_machines=30,n_operations=30,s=flow_shop"`
+- `"n_jobs=50,n_machines=30,n_operations=30,s=hybrid_flow_shop"`
+- `"n_jobs=50,n_machines=30,n_operations=30,s=job_shop"`
+- `"n_jobs=75,n_machines=42,n_operations=42,s=fjsp_high"`
+- `"n_jobs=75,n_machines=42,n_operations=42,s=fjsp_medium"`
+- `"n_jobs=75,n_machines=42,n_operations=42,s=flow_shop"`
+- `"n_jobs=75,n_machines=42,n_operations=42,s=hybrid_flow_shop"`
+- `"n_jobs=75,n_machines=42,n_operations=42,s=job_shop"`
+- `"n_jobs=100,n_machines=55,n_operations=55,s=fjsp_high"`
+- `"n_jobs=100,n_machines=55,n_operations=55,s=fjsp_medium"`
+- `"n_jobs=100,n_machines=55,n_operations=55,s=flow_shop"`
+- `"n_jobs=100,n_machines=55,n_operations=55,s=hybrid_flow_shop"`
+- `"n_jobs=100,n_machines=55,n_operations=55,s=job_shop"`
 
 ---
 

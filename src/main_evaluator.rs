@@ -11,12 +11,8 @@ fn cli() -> Command {
             arg!(<CHALLENGE> "Challenge name: knapsack, vehicle_routing, job_scheduling")
                 .value_parser(value_parser!(String)),
         )
-        .arg(
-            arg!(<INSTANCE_FILE> "Path to the instance file").value_parser(value_parser!(PathBuf)),
-        )
-        .arg(
-            arg!(<SOLUTION_FILE> "Path to the solution file").value_parser(value_parser!(PathBuf)),
-        )
+        .arg(arg!(<INSTANCE_FILE> "Path to the instance file").value_parser(value_parser!(PathBuf)))
+        .arg(arg!(<SOLUTION_FILE> "Path to the solution file").value_parser(value_parser!(PathBuf)))
 }
 
 fn run_evaluate(challenge: &str, instance_file: &Path, solution_file: &Path) -> Result<()> {

@@ -55,10 +55,26 @@ impl Challenge {
     /// Deserialize from Solomon-style txt format. Seed and greedy_baseline_total_distance set to 0.
     pub fn from_txt(s: &str) -> Result<Self> {
         let mut lines = s.lines().map(str::trim).filter(|l| !l.is_empty());
-        let _veh = lines
-            .next()
-            .filter(|l| l.eq_ignore_ascii_case("VEHICLE"))
-            .ok_or_else(|| anyhow!("Expected VEHICLE header"))?;
+        // Optionally skip an instance name line if not "VEHICLE"
+        let _veh = {
+            let l = lines
+                .next()
+                .ok_or_else(|| anyhow!("Expected VEHICLE header"))?;
+            if l.eq_ignore_ascii_case("VEHICLE") {
+                Some(l)
+            } else {
+                // skip this line, expect VEHICLE next
+                let l2 = lines
+                    .next()
+                    .ok_or_else(|| anyhow!("Expected VEHICLE header after instance name line"))?;
+                if l2.eq_ignore_ascii_case("VEHICLE") {
+                    Some(l2)
+                } else {
+                    None
+                }
+            }
+        }
+        .ok_or_else(|| anyhow!("Expected VEHICLE header"))?;
         let _header = lines
             .next()
             .ok_or_else(|| anyhow!("Expected NUMBER CAPACITY line"))?;
