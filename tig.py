@@ -67,7 +67,7 @@ def run_algorithm_on_instance(
     out_dir: str = None,
 ) -> tuple:
     try:
-        time_taken, memory = None, None
+        time_taken, memory = -1, None
         if out_dir:
             os.makedirs(
                 os.path.join(out_dir, os.path.dirname(instance_file)),
