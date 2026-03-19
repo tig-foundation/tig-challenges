@@ -203,14 +203,21 @@ def evaluate_solution(
     dataset_dir: str,
     solutions_dir: str,
     instance_file: str,
+    snapshots: bool = False,
 ) -> tuple:
     logger.info("Evaluating solutions for %s", instance_file)
     if solutions_dir is None:
         solutions_dir = dataset_dir
-    solutions = [
-        os.path.relpath(path, solutions_dir)
-        for path in glob.glob(f"{solutions_dir}/{instance_file}.solution*")
-    ]
+    if snapshots:
+        solutions = [
+            os.path.relpath(path, solutions_dir)
+            for path in glob.glob(f"{solutions_dir}/{instance_file}.solution.*")
+        ]
+    else:
+        solutions = [
+            os.path.relpath(path, solutions_dir)
+            for path in glob.glob(f"{solutions_dir}/{instance_file}.solution")
+        ]
     if len(solutions) == 0:
         logger.info("No solutions found for %s", instance_file)
         return [(f"{instance_file}.solution", "not_found")]
@@ -252,6 +259,7 @@ def evaluate_solutions(
     challenge: str,
     dataset_dir: str,
     solutions_dir: str = None,
+    snapshots: bool = False,
     num_workers: int = 1,
     csv_path: str = None,
 ) -> list:
@@ -278,7 +286,7 @@ def evaluate_solutions(
     results = [
         x 
         for l in pool.map(
-            lambda instance: evaluate_solution(challenge, dataset_dir, solutions_dir, instance),
+            lambda instance: evaluate_solution(challenge, dataset_dir, solutions_dir, instance, snapshots),
             instances
         ) 
         for x in l
@@ -320,6 +328,7 @@ if __name__ == "__main__":
     evaluate_parser.add_argument("challenge", choices=["knapsack", "vehicle_routing", "job_scheduling"], help="Challenge name")
     evaluate_parser.add_argument("dataset_dir", help="Dataset directory (recursively searches for .txt files)")
     evaluate_parser.add_argument("--solutions", default=None, help="Solutions directory (defaults to dataset directory. Search for <instance>.solution* files.)")
+    evaluate_parser.add_argument("--snapshots", action="store_true", help="Evaluate snapshots of the solution")
     evaluate_parser.add_argument("--workers", type=int, default=1, help="Number of worker threads")
     evaluate_parser.add_argument("--csv", default=None, help="CSV file path for saving results")
 
@@ -350,6 +359,7 @@ if __name__ == "__main__":
                 args.challenge,
                 args.dataset_dir,
                 args.solutions,
+                args.snapshots,
                 args.workers,
                 args.csv,
             )
