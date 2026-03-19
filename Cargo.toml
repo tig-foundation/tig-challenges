@@ -37,7 +37,6 @@ path = "src/main_evaluator.rs"
 required-features = ["evaluator"]
 
 [features]
-hide_evaluate = []
 knapsack = []
 vehicle_routing = []
 job_scheduling = []
@@ -45,4 +44,5 @@ job_scheduling = []
 # Convenience feature sets for the bins.
 generator = ["knapsack", "vehicle_routing", "job_scheduling"]
 evaluator = ["knapsack", "vehicle_routing", "job_scheduling"]
-solver = ["hide_evaluate"]
+solver = []
+baseline = []

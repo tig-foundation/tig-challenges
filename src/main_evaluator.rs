@@ -37,13 +37,13 @@ fn run_evaluate(challenge: &str, instance_file: &Path, solution_file: &Path) -> 
         }};
     }
 
-    let quality = match challenge {
+    let out = match challenge {
         "knapsack" => dispatch_evaluate!(knapsack),
         "vehicle_routing" => dispatch_evaluate!(vehicle_routing),
         "job_scheduling" => dispatch_evaluate!(job_scheduling),
         _ => anyhow::bail!("Unknown challenge: {}", challenge),
     };
-    println!("Quality: {}", quality);
+    println!("Output: {}", out);
     Ok(())
 }
 

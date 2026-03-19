@@ -1,17 +1,17 @@
-use crate::QUALITY_PRECISION;
-mod algorithm;
-mod baselines;
+#[cfg(not(feature = "baseline"))]
+pub mod algorithm;
+#[cfg(feature = "baseline")]
+pub mod baseline;
 mod challenge;
+mod solomon;
 mod solution;
 
-pub use algorithm::*;
 pub use challenge::*;
 pub use solution::*;
 
 use anyhow::{anyhow, Result};
 use rand::{rngs::SmallRng, Rng, SeedableRng};
 use statrs::function::erf::{erf, erf_inv};
-use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 
 impl_kv_string_serde! {
@@ -131,8 +131,8 @@ impl Challenge {
             due_times,
         };
 
-        let greedy_baseline_solution = c.compute_greedy_baseline()?;
-        c.fleet_size = greedy_baseline_solution.routes.len() + 2;
+        let solomon_solution = solomon::run(&c)?;
+        c.fleet_size = solomon_solution.routes.len() + 2;
 
         Ok(c)
     }
@@ -196,31 +196,9 @@ impl Challenge {
         Ok(total_distance)
     }
 
-    conditional_pub!(
-        fn compute_greedy_baseline(&self) -> Result<Solution> {
-            let solution = RefCell::new(Solution::new());
-            let save_solution_fn = |s: &Solution| -> Result<()> {
-                *solution.borrow_mut() = s.clone();
-                Ok(())
-            };
-            baselines::solomon::solve_challenge(self, &save_solution_fn, &None)?;
-            Ok(solution.into_inner())
-        }
-    );
-
-    conditional_pub!(
-        fn evaluate_solution(&self, solution: &Solution) -> Result<i32> {
-            let total_distance = self.evaluate_total_distance(solution)?;
-            let greedy_baseline_solution = self.compute_greedy_baseline()?;
-            let greedy_baseline_total_distance =
-                self.evaluate_total_distance(&greedy_baseline_solution)?;
-            let quality = (greedy_baseline_total_distance as f64 - total_distance as f64)
-                / greedy_baseline_total_distance as f64;
-            let quality = quality.clamp(-10.0, 10.0) * QUALITY_PRECISION as f64;
-            let quality = quality.round() as i32;
-            Ok(quality)
-        }
-    );
+    pub fn evaluate_solution(&self, solution: &Solution) -> Result<f32> {
+        Ok(self.evaluate_total_distance(solution)? as f32)
+    }
 }
 
 fn truncated_normal_sample<T: Rng>(

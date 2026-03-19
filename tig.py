@@ -3,6 +3,7 @@
 from concurrent.futures import ThreadPoolExecutor
 import logging
 import os
+import csv
 import glob
 import subprocess
 import argparse
@@ -56,8 +57,9 @@ def generate_datasets(challenge: str):
             ], check=True)
             logger.info("Generated in %.2fs", time.time() - start)
 
-def run_test(
+def run_algorithm_on_instance(
     challenge: str,
+    dataset_dir: str,
     instance_file: str,
     hyperparameters: str = None,
     timeout: int = 60,
@@ -65,12 +67,15 @@ def run_test(
     out_dir: str = None,
 ) -> tuple:
     try:
-        quality, time_taken, memory = None, None, None
+        time_taken, memory = -1, None
         if out_dir:
-            os.makedirs(out_dir, exist_ok=True)
-            solution_path = os.path.join(out_dir, f"{os.path.basename(instance_file)}.solution")
+            os.makedirs(
+                os.path.join(out_dir, os.path.dirname(instance_file)),
+                exist_ok=True
+            )
+            solution_path = os.path.join(out_dir, f"{instance_file}.solution")
         else:
-            solution_path = f"{instance_file}.solution"
+            solution_path = os.path.join(dataset_dir, f"{instance_file}.solution")
         logger.info("Solving %s", instance_file)
 
         cmd = [
@@ -78,7 +83,7 @@ def run_test(
             "-f", "Memory: %M",
             "target/release/tig_solver",
             challenge,
-            instance_file,
+            os.path.join(dataset_dir, instance_file),
             solution_path,
         ]
         if hyperparameters:
@@ -130,47 +135,19 @@ def run_test(
             for line in (stderr or "").strip().split("\n"):
                 if line.startswith("Memory:"):
                     memory = int(line.split(":")[1].strip())
-        else:
-            time_taken = timeout
-            memory = -1
 
-        cmd = [
-            "target/release/tig_evaluator",
-            challenge,
-            instance_file,
-            solution_path,
-        ]
-        logger.debug("Evaluator command: %s", " ".join(cmd))
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            timeout=timeout,
-        )
-        if result.returncode != 0:
-            logger.error(
-                "Evaluation failed (rc=%s) for %s. stderr=%s",
-                result.returncode,
-                instance_file,
-                (result.stderr or "").strip(),
-            )
-            raise ValueError(f"Evaluation failed: {result.stderr.strip()}")
-        for line in result.stdout.strip().split("\n"):
-            if line.startswith("Quality:"):
-                quality = line.split(":")[1].strip()
         logger.info(
-            "Solved %s | quality=%s time=%.3fs memory=%sKB",
+            "Solved %s | time=%.3fs memory=%sKB",
             instance_file,
-            quality,
-            time_taken if time_taken is not None else -1.0,
+            time_taken,
             memory,
         )
-        return quality, time_taken, memory
+        return instance_file, time_taken, memory
     except Exception as e:
-        logger.exception("Instance failed: %s (%s)", instance_file, e)
-        return None, None, None
+        logger.exception("Unexpected error: %s (%s)", instance_file, e)
+        return instance_file, None, None
 
-def test_algorithm(
+def run_algorithm(
     challenge: str,
     dataset_dir: str,
     num_workers: int = 1,
@@ -178,17 +155,21 @@ def test_algorithm(
     timeout: int = 60,
     interval: float = None,
     out_dir: str = None,
+    baseline: bool = False,
 ) -> list:
-    if not os.path.exists("target/release/tig_evaluator"):
-        logger.info("Building `tig_evaluator` (release)")
-        subprocess.run(["cargo", "build", "-r", "--bin", "tig_evaluator", "--features", "evaluator"], check=True)
-    logger.info("Building `tig_solver` (release, features=solver,%s)", challenge)
-    subprocess.run(["cargo", "build", "-r", "--bin", "tig_solver", "--features", f"solver,{challenge}"], check=True)
+    if baseline:
+        logger.info("Building `tig_solver` (release, features=solver,baseline,%s)", challenge)
+        subprocess.run(["cargo", "build", "-r", "--bin", "tig_solver", "--features", f"solver,baseline,{challenge}"], check=True)
+    else:
+        logger.info("Building `tig_solver` (release, features=solver,%s)", challenge)
+        subprocess.run(["cargo", "build", "-r", "--bin", "tig_solver", "--features", f"solver,{challenge}"], check=True)
     
     pool = ThreadPoolExecutor(max_workers=num_workers)
-    start = time.time()
 
-    instances = glob.glob(f"{dataset_dir}/**/*.txt", recursive=True)
+    instances = [
+        os.path.relpath(path, dataset_dir)
+        for path in glob.glob(f"{dataset_dir}/**/*.txt", recursive=True)
+    ]
     logger.info(
         "Running %s instances (challenge=%s workers=%s timeout=%ss interval=%s out=%s)",
         len(instances),
@@ -200,18 +181,103 @@ def test_algorithm(
     )
     logger.debug("Dataset dir: %s", dataset_dir)
     
-    results = list(pool.map(
-        lambda instance: run_test(challenge, instance, hyperparameters, timeout, interval, out_dir),
+    return list(pool.map(
+        lambda instance: run_algorithm_on_instance(challenge, dataset_dir, instance, hyperparameters, timeout, interval, out_dir),
         instances
     ))
+
+def evaluate_solution(
+    challenge: str,
+    dataset_dir: str,
+    solutions_dir: str,
+    instance_file: str,
+) -> tuple:
+    logger.info("Evaluating solutions for %s", instance_file)
+    if solutions_dir is None:
+        solutions_dir = dataset_dir
+    solutions = [
+        os.path.relpath(path, solutions_dir)
+        for path in glob.glob(f"{solutions_dir}/{instance_file}.solution*")
+    ]
+    if len(solutions) == 0:
+        logger.info("No solutions found for %s", instance_file)
+        return [(f"{instance_file}.solution", "not_found")]
+    results = []
+    for s in solutions:
+        solution_file = os.path.join(solutions_dir, s)
+        cmd = [
+            "target/release/tig_evaluator",
+            challenge,
+            os.path.join(dataset_dir, instance_file),
+            solution_file,
+        ]
+        logger.debug("Evaluator command: %s", " ".join(cmd))
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode != 0:
+            logger.debug(
+                "Evaluated %s | output=error exit_code=%s stderr=%s",
+                result.returncode,
+                solution_file,
+                (result.stderr or "").strip(),
+            )
+            output = "error"
+        else:
+            for line in result.stdout.strip().split("\n"):
+                if line.startswith("Output:"):
+                    output = line.split(":")[1].strip()
+                    break
+            else:
+                output = "unknown"
+            logger.info("Evaluated %s | output=%s", solution_file, output)
+        results.append((s, output))
+    return results
+
+def evaluate_solutions(
+    challenge: str,
+    dataset_dir: str,
+    solutions_dir: str = None,
+    num_workers: int = 1,
+    csv_path: str = None,
+) -> list:
+    if not os.path.exists("target/release/tig_evaluator"):
+        logger.info("Building `tig_evaluator` (release)")
+        subprocess.run(["cargo", "build", "-r", "--bin", "tig_evaluator", "--features", "evaluator"], check=True)
+    instances = [
+        os.path.relpath(path, dataset_dir)
+        for path in glob.glob(f"{dataset_dir}/**/*.txt", recursive=True)
+    ]
+    logger.info(
+        "Evaluating solutions for %s instances (challenge=%s workers=%s csv=%s)",
+        len(instances),
+        challenge,
+        num_workers,
+        csv_path,
+    )
+    logger.debug("Dataset dir: %s", dataset_dir)
+    logger.debug("Solutions dir: %s", solutions_dir)
+    logger.debug("CSV path: %s", csv_path)
     
-    # Calculate final stats
-    solved = [r for r in results if r[0] is not None]
-    num_solved = len(solved)
-    elapsed = time.time() - start
-    avg_quality = int(sum(float(r[0]) for r in solved) / num_solved) if num_solved > 0 else 0
+    pool = ThreadPoolExecutor(max_workers=num_workers)
+    results = [
+        x 
+        for l in pool.map(
+            lambda instance: evaluate_solution(challenge, dataset_dir, solutions_dir, instance),
+            instances
+        ) 
+        for x in l
+    ]
     
-    logger.info("#solved=%s/%s elapsed=%.2fs avg_quality=%s", num_solved, len(results), elapsed, f"{avg_quality:,}")
+    if csv_path:
+        with open(csv_path, "w") as f:
+            writer = csv.writer(f)
+            writer.writerow(["solution_file", "output"])
+            for result in results:
+                writer.writerow(result)
+    
     return results
 
 if __name__ == "__main__":
@@ -222,16 +288,25 @@ if __name__ == "__main__":
     # generate_datasets subcommand
     generate_parser = subparsers.add_parser("generate_datasets", help="Generate datasets")
     generate_parser.add_argument("challenge", choices=["knapsack", "vehicle_routing", "job_scheduling"], help="Challenge name")
-    # test_algorithm subcommand
-    test_parser = subparsers.add_parser("test_algorithm", help="Test the algorithm")
-    test_parser.add_argument("challenge", choices=["knapsack", "vehicle_routing", "job_scheduling"], help="Challenge name")
-    test_parser.add_argument("dataset_dir", help="Dataset directory")
-    test_parser.add_argument("--workers", type=int, default=1, help="Number of worker threads")
-    test_parser.add_argument("--hyperparameters", help="Hyperparameters string")
-    test_parser.add_argument("--timeout", type=int, default=60, help="Timeout in seconds")
-    test_parser.add_argument("--interval", type=float, default=None, help="Interval (seconds) to snapshot the latest solution")
-    test_parser.add_argument("--out", default=None, help="Output directory for saving solutions (created if missing)")
+    # run_algorithm subcommand
+    run_parser = subparsers.add_parser("run_algorithm", help="Run the algorithm on datasets")
+    run_parser.add_argument("challenge", choices=["knapsack", "vehicle_routing", "job_scheduling"], help="Challenge name")
+    run_parser.add_argument("dataset_dir", help="Dataset directory (recursively searches for .txt files)")
+    run_parser.add_argument("--workers", type=int, default=1, help="Number of worker threads")
+    run_parser.add_argument("--hyperparameters", help="Hyperparameters string")
+    run_parser.add_argument("--timeout", type=int, default=60, help="Timeout in seconds")
+    run_parser.add_argument("--interval", type=float, default=None, help="Interval (seconds) to snapshot the latest solution")
+    run_parser.add_argument("--out", default=None, help="Output directory for saving solutions (created if missing)")
+    run_parser.add_argument("--baseline", action="store_true", help="Run the baseline algorithm")
     
+    # evaluate_solutions subcommand
+    evaluate_parser = subparsers.add_parser("evaluate_solutions", help="Evaluate solutions")
+    evaluate_parser.add_argument("challenge", choices=["knapsack", "vehicle_routing", "job_scheduling"], help="Challenge name")
+    evaluate_parser.add_argument("dataset_dir", help="Dataset directory (recursively searches for .txt files)")
+    evaluate_parser.add_argument("--solutions", default=None, help="Solutions directory (defaults to dataset directory. Search for <instance>.solution* files.)")
+    evaluate_parser.add_argument("--workers", type=int, default=1, help="Number of worker threads")
+    evaluate_parser.add_argument("--csv", default=None, help="CSV file path for saving results")
+
     args = parser.parse_args()
     setup_logging(args.log_level)
     require_cargo()
@@ -240,9 +315,9 @@ if __name__ == "__main__":
         if args.command == "generate_datasets":
             logger.info("Command: generate_datasets (challenge=%s)", args.challenge)
             generate_datasets(args.challenge)
-        elif args.command == "test_algorithm":
-            logger.info("Command: test_algorithm (challenge=%s)", args.challenge)
-            test_algorithm(
+        elif args.command == "run_algorithm":
+            logger.info("Command: run_algorithm (challenge=%s)", args.challenge)
+            run_algorithm(
                 args.challenge,
                 args.dataset_dir,
                 args.workers,
@@ -250,6 +325,16 @@ if __name__ == "__main__":
                 args.timeout,
                 args.interval,
                 args.out,
+                args.baseline,
+            )
+        elif args.command == "evaluate_solutions":
+            logger.info("Command: evaluate_solutions (challenge=%s)", args.challenge)
+            evaluate_solutions(
+                args.challenge,
+                args.dataset_dir,
+                args.solutions,
+                args.workers,
+                args.csv,
             )
         else:
             parser.print_help()

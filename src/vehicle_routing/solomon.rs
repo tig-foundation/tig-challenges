@@ -1,12 +1,7 @@
 use crate::vehicle_routing::{Challenge, Solution};
 use anyhow::Result;
-use serde_json::{Map, Value};
 
-pub fn solve_challenge(
-    challenge: &Challenge,
-    save_solution: &dyn Fn(&Solution) -> Result<()>,
-    _hyperparameters: &Option<Map<String, Value>>,
-) -> Result<()> {
+pub fn run(challenge: &Challenge) -> Result<Solution> {
     let mut routes = Vec::new();
 
     let mut nodes: Vec<usize> = (1..challenge.num_nodes).collect();
@@ -47,8 +42,7 @@ pub fn solve_challenge(
         routes.push(route);
     }
 
-    let _ = save_solution(&Solution { routes });
-    Ok(())
+    Ok(Solution { routes })
 }
 
 fn is_feasible(

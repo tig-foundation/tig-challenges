@@ -21,6 +21,8 @@ pub struct Challenge {
 }
 
 impl Challenge {
+    /// Instance generation & solution evaluation is done in the mod.rs file.
+
     /// Returns the product index for the given job index (0-based), or None if out of range.
     pub fn job_to_product(&self, job_0: usize) -> Option<usize> {
         let mut acc = 0;
@@ -77,16 +79,23 @@ impl Challenge {
             .ok_or_else(|| anyhow!("Missing first line (num_jobs num_machines [avg])"))?;
         let parts: Vec<&str> = first.split_whitespace().collect();
         if parts.len() < 2 {
-            return Err(anyhow!("First line must have at least num_jobs and num_machines"));
+            return Err(anyhow!(
+                "First line must have at least num_jobs and num_machines"
+            ));
         }
-        let num_jobs: usize = parts[0].parse().map_err(|e| anyhow!("Invalid num_jobs: {}", e))?;
-        let num_machines: usize =
-            parts[1].parse().map_err(|e| anyhow!("Invalid num_machines: {}", e))?;
+        let num_jobs: usize = parts[0]
+            .parse()
+            .map_err(|e| anyhow!("Invalid num_jobs: {}", e))?;
+        let num_machines: usize = parts[1]
+            .parse()
+            .map_err(|e| anyhow!("Invalid num_machines: {}", e))?;
 
         let mut tokens: Vec<usize> = Vec::new();
         for line in lines {
             for t in line.split_whitespace() {
-                let n: u32 = t.parse().map_err(|e| anyhow!("Invalid number {:?}: {}", t, e))?;
+                let n: u32 = t
+                    .parse()
+                    .map_err(|e| anyhow!("Invalid number {:?}: {}", t, e))?;
                 tokens.push(n as usize);
             }
         }
@@ -95,21 +104,27 @@ impl Challenge {
         let mut job_ops: Vec<Vec<HashMap<usize, u32>>> = Vec::with_capacity(num_jobs);
         for _ in 0..num_jobs {
             if pos >= tokens.len() {
-                return Err(anyhow!("Unexpected end of data: expected num_operations for job"));
+                return Err(anyhow!(
+                    "Unexpected end of data: expected num_operations for job"
+                ));
             }
             let num_ops = tokens[pos];
             pos += 1;
             let mut ops = Vec::with_capacity(num_ops);
             for _ in 0..num_ops {
                 if pos >= tokens.len() {
-                    return Err(anyhow!("Unexpected end of data: expected num_machines for operation"));
+                    return Err(anyhow!(
+                        "Unexpected end of data: expected num_machines for operation"
+                    ));
                 }
                 let num_machines_op = tokens[pos];
                 pos += 1;
                 let mut map = HashMap::new();
                 for _ in 0..num_machines_op {
                     if pos + 1 >= tokens.len() {
-                        return Err(anyhow!("Unexpected end of data: expected (machine, time) pair"));
+                        return Err(anyhow!(
+                            "Unexpected end of data: expected (machine, time) pair"
+                        ));
                     }
                     let machine_1 = tokens[pos];
                     let time = tokens[pos + 1] as u32;
@@ -183,7 +198,9 @@ impl<'de> Deserialize<'de> for Challenge {
         impl<'de> Visitor<'de> for ChallengeVisitor {
             type Value = Challenge;
             fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-                formatter.write_str("Brandimarte .fjs format (num_jobs num_machines, then per-job operations)")
+                formatter.write_str(
+                    "Brandimarte .fjs format (num_jobs num_machines, then per-job operations)",
+                )
             }
             fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
             where
