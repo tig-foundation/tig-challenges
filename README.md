@@ -2,50 +2,65 @@
 
 Suite of algorithmic challenges featured in **The Innovation Game (TIG)**, collated for evaluating and comparing **AI-driven algorithm discovery** methods.
 
-This repo provides a unified CLI and data formats so you can generate instances, run solvers, and evaluate solutions across multiple challenge domains. It is designed to integrate with frameworks like [SkyDiscover](https://github.com/skydiscover-ai/skydiscover), [CodeEvolve](https://github.com/inter-co/science-codeevolve), and [OpenEvolve](https://github.com/codelion/openevolve): **algorithm discovery frameworks should only edit `src/<challenge>/algorithm.rs`**; that file is the evolvable program. The rest of the repo (instance parsing, validation, scoring) stays fixed.
+This repo provides a unified CLI and data formats so you can generate instances, run solvers, and evaluate solutions across multiple challenge domains. It is designed to integrate with frameworks like [SkyDiscover](https://github.com/skydiscover-ai/skydiscover), [CodeEvolve](https://github.com/inter-co/science-codeevolve), and [OpenEvolve](https://github.com/codelion/openevolve): **algorithm discovery frameworks should only edit files inside `src/<challenge>/algorithm/`**; that folder contains the evolvable program. The rest of the repo (instance parsing, validation, scoring) stays fixed.
 
 ---
 
 ## Quick start
 
-### 1. Generate or obtain datasets
+### 0. Prerequisites
 
-Generate datasets for a specific challenge using the Python CLI. Splits (e.g. `train`, `val`, `test`) and tracks are defined in **`datasets_config.json`**:
+- Python 3.8+
+- Rust/Cargo (required because `tig.py` builds Rust binaries)
 
-```bash
-python3 tig.py generate_datasets <challenge>
-```
-
-Example: `python3 tig.py generate_datasets knapsack` generates instances for all tracks and splits configured for knapsack. Output is written under `datasets/<challenge>/<split>/<track>/`.
-
-**Pre-computed instances:** *(Coming soon — [download pre-computed instances](#) for all challenges and splits.)*
-
-### 2. Evolve the solver
-
-Use an **AI-driven algorithm discovery framework** (e.g. SkyDiscover, CodeEvolve, OpenEvolve) to evolve **`src/<challenge>/algorithm.rs`**. That file is the only one you modify; the framework builds the project and runs the solver/evaluator to get scores.
-
-### 3. Test on instances and get metrics
-
-Run your solver on a dataset directory to collect **solution quality**, **time taken**, and **memory used**:
+Check your environment:
 
 ```bash
-python3 tig.py test_algorithm <challenge> <dataset_dir> [--workers N] [--timeout SEC] [--hyperparameters JSON] [--debug]
+python3 --version
+cargo --version
 ```
 
-Example: `python3 tig.py test_algorithm knapsack datasets/knapsack/test/n_items=1000,budget=10` runs the current solver on all `.txt` instances in that directory and prints aggregate metrics.
+### 1. Generate datasets
 
-**Invocation:** You can either run the script or import it as a module:
+Use one of the provided configs and generate instances:
 
 ```bash
-python3 tig.py generate_datasets vehicle_routing
-python3 tig.py test_algorithm vehicle_routing datasets/vehicle_routing/val/n_nodes=800
+python3 tig.py generate_dataset job_scheduling datasets/job_scheduling/train.json
 ```
 
-```python
-import tig
-tig.generate_datasets("job_scheduling")
-tig.test_algorithm("job_scheduling", "datasets/job_scheduling/test/n=50,s=flow_shop", num_workers=4)
+This writes instance files under `datasets/job_scheduling/<seed>/...` by default.  
+To choose a custom output directory, pass `--out <dir>`.
+
+### 2. Evolve or edit the algorithm
+
+Run your algorithm discovery workflow against files in `src/<challenge>/algorithm/` (typically `src/<challenge>/algorithm/mod.rs`).  
+Keep all other code unchanged; only the algorithm files should evolve.
+
+### 3. Run algorithm on a dataset
+
+Run the current algorithm on all instances in a dataset directory:
+
+```bash
+python3 tig.py run_algorithm job_scheduling datasets/job_scheduling/test/n=50,s=flow_shop --workers 4 --timeout 120
 ```
+
+Notes:
+- Solutions are saved as `<instance>.solution`.
+- Add `--baseline` to run the built-in baseline solver.
+- Add `--csv runs.csv` to export runtime and memory stats.
+
+### 4. Evaluate solutions
+
+Score generated solutions:
+
+```bash
+python3 tig.py evaluate_solutions job_scheduling datasets/job_scheduling/test/n=50,s=flow_shop --csv eval.csv
+```
+
+Optional:
+- Use `--solutions <dir>` if solutions are stored outside the dataset directory.
+- Use `--snapshots` to evaluate intermediate snapshot files (`.solution.*`).
+
 
 ---
 
@@ -61,121 +76,109 @@ tig.test_algorithm("job_scheduling", "datasets/job_scheduling/test/n=50,s=flow_s
 
 ---
 
-## CLI Usage
+## Python API
 
-The Rust crate exposes **three binaries**. You can call them directly or use the Python CLI (`tig.py`) which builds and invokes them as needed.
+**Invocation:** You can either run the script or import it as a module:
 
-| Binary | Purpose |
-|--------|---------|
-| `tig_generator` | Generate instance files for a challenge/track. |
-| `tig_solver` | Solve an instance and write the solution to a file. |
-| `tig_evaluator` | Score a solution against an instance (quality printed to stdout). |
-
-### Generator: `tig_generator`
-
-Generate problem instances for a given track.
-
-**Build:**
 ```bash
-cargo build -r --bin tig_generator --features generator
+python3 tig.py --help
+python3 tig.py <sub-command> ...
 ```
 
-**Run:**
+The Python CLI exposes three sub-commands:
+
+### `generate_dataset`
+
+Generate challenge instances from a JSON config file.
+
 ```bash
-./target/release/tig_generator <challenge> <track> [options]
+python3 tig.py generate_dataset <challenge> <config> [--out <output_dir>]
 ```
 
-| Argument / Option | Description |
-|-------------------|-------------|
-| `<challenge>`     | Challenge name: `knapsack`, `vehicle_routing`, `job_scheduling`. |
-| `<track>`         | Track specification: `key=value,key=value` (challenge-specific). See [Recommended tracks](#recommended-tracks) below. |
-| `--seed <seed>`   | *(Optional)* Random seed string (hashed for instance generation). Default: `0`. |
-| `-n, --n <N>`     | *(Optional)* Number of instances to generate. Default: `1`. |
-| `-o, --out <dir>` | *(Optional)* Output directory. Default: `<challenge>/<track>`. |
+Arguments/options:
+- `challenge`: one of `knapsack`, `vehicle_routing`, `job_scheduling`.
+- `config`: path to a JSON file containing:
+  - `seed` (string), and
+  - track entries mapping `track_id -> n_instances`.
+- `--out`: optional output root directory. Default is `datasets/<challenge>/<seed>`.
 
-Instances are written as `<out>/0.txt`, `<out>/1.txt`, etc.
-
-### Solver: `tig_solver`
-
-Run the solver on a single instance and write the solution to a file. Each time the algorithm calls `save_solution`, the solution is written immediately so that if the process is interrupted, the latest solution is still saved.
-
-**Integration with AI discovery:** Discovery frameworks (SkyDiscover, CodeEvolve, OpenEvolve, etc.) should **only edit `src/<challenge>/algorithm.rs`**. That file exposes a `solve_challenge`-style API; frameworks generate or mutate it, build the project, and invoke `tig_solver` to obtain solutions. Instance parsing, verification, and scoring stay fixed. The solver is built with the `hide_evaluate` feature so evaluation logic is not visible to the evolved code.
-
-**Build** (must enable at least one challenge):
+Example:
 ```bash
-cargo build -r --bin tig_solver --no-default-features --features "solver,<challenge>"
-```
-Example: `--features "solver,knapsack"` or `--features "solver,knapsack,vehicle_routing,job_scheduling"` for all.
-
-**Run:**
-```bash
-./target/release/tig_solver <challenge> <instance_file> <solution_file> [options]
+python3 tig.py generate_dataset job_scheduling datasets/job_scheduling/train.json
 ```
 
-| Argument / Option | Description |
-|-------------------|-------------|
-| `<challenge>`       | Challenge name. |
-| `<instance_file>`   | Path to a single instance file (`.txt`). Must exist. |
-| `<solution_file>`   | Path where the solution will be written (`.txt`). |
-| `--hyperparameters [JSON]` | *(Optional)* JSON object string for solver hyperparameters (e.g. `'{"timeout": 60}'`). |
+### `run_algorithm`
 
-### Evaluator: `tig_evaluator`
+Build `tig_solver`, run it over all `*.txt` instances under a dataset directory, and write `<instance>.solution` files.
 
-Score a solution file against an instance. Used by pipelines (e.g. `tig.py test_algorithm`) to compute quality after running the solver. Built with full challenge features and no `hide_evaluate`, so evaluation logic is available; the solver binary is built separately with `hide_evaluate` so algorithm discovery does not see it.
-
-**Build:**
 ```bash
-cargo build -r --bin tig_evaluator --features evaluator
+python3 tig.py run_algorithm <challenge> <dataset_dir> [options]
 ```
 
-**Run:**
+Arguments/options:
+- `challenge`: one of `knapsack`, `vehicle_routing`, `job_scheduling`.
+- `dataset_dir`: directory searched recursively for `.txt` files.
+- `--workers <int>`: number of worker threads (default: `1`).
+- `--hyperparameters <json_or_string>`: for example, `--hyperparameters '{"exploration_level":5}'
+- `--timeout <seconds>`: per-instance timeout in seconds (default: `60`).
+- `--interval <seconds>`: snapshot interval in seconds; periodically copies latest solution to `.solution.<t>`.
+- `--out <output_dir>`: write solutions under a separate directory preserving relative paths (default: alongside dataset files).
+- `--baseline`: runs baseline algorithm
+- `--csv <file>`: write stats as csv format with columns `instance_file,time_taken,memory`.
+
+Example:
 ```bash
-./target/release/tig_evaluator <challenge> <instance_file> <solution_file>
+python3 tig.py run_algorithm vehicle_routing datasets/vehicle_routing/test/n_nodes=800 --workers 4 --timeout 120 --csv runs.csv
 ```
 
-Output: quality score printed to stdout.
+### `evaluate_solutions`
 
----
+Build `tig_evaluator`, evaluate saved solutions for each instance, and return quality outputs.
 
-## Recommended tracks
+```bash
+python3 tig.py evaluate_solutions <challenge> <dataset_dir> [options]
+```
 
-Use these track strings with `generate` (track format is `key=value,key=value`; pass as a single argument, optionally quoted).
+Arguments/options:
+- `challenge`: one of `knapsack`, `vehicle_routing`, `job_scheduling`.
+- `dataset_dir`: directory searched recursively for `.txt` instance files.
+- `--solutions <dir>`: solution root directory (default: `dataset_dir`). Solutions are searched as `<solutions_dir>/<instance_file>.solution`.
+- `--snapshots`: evaluate snapshot files matching `<instance>.solution*` instead of only `<instance>.solution`.
+- `--workers <int>`: number of worker threads (default: `1`).
+- `--csv <file>`: write evaluation CSV with columns `solution_file,output`.
 
-**vehicle_routing**
-- `"n_nodes=600"`
-- `"n_nodes=700"`
-- `"n_nodes=800"`
-- `"n_nodes=900"`
-- `"n_nodes=1000"`
+Example:
+```bash
+python3 tig.py evaluate_solutions vehicle_routing datasets/vehicle_routing/test/n_nodes=800 --solutions outputs --snapshots --csv eval.csv
+```
 
-**knapsack**
-- `"n_items=1000,budget=10"`
-- `"n_items=1000,budget=25"`
-- `"n_items=1000,budget=5"`
-- `"n_items=5000,budget=10"`
-- `"n_items=5000,budget=25"`
+### `import tig`
 
-**job_scheduling**
-- `"n_jobs=25,n_machines=15,n_operations=15,s=fjsp_high"`
-- `"n_jobs=25,n_machines=15,n_operations=15,s=fjsp_medium"`
-- `"n_jobs=25,n_machines=15,n_operations=15,s=flow_shop"`
-- `"n_jobs=25,n_machines=15,n_operations=15,s=hybrid_flow_shop"`
-- `"n_jobs=25,n_machines=15,n_operations=15,s=job_shop"`
-- `"n_jobs=50,n_machines=30,n_operations=30,s=fjsp_high"`
-- `"n_jobs=50,n_machines=30,n_operations=30,s=fjsp_medium"`
-- `"n_jobs=50,n_machines=30,n_operations=30,s=flow_shop"`
-- `"n_jobs=50,n_machines=30,n_operations=30,s=hybrid_flow_shop"`
-- `"n_jobs=50,n_machines=30,n_operations=30,s=job_shop"`
-- `"n_jobs=75,n_machines=42,n_operations=42,s=fjsp_high"`
-- `"n_jobs=75,n_machines=42,n_operations=42,s=fjsp_medium"`
-- `"n_jobs=75,n_machines=42,n_operations=42,s=flow_shop"`
-- `"n_jobs=75,n_machines=42,n_operations=42,s=hybrid_flow_shop"`
-- `"n_jobs=75,n_machines=42,n_operations=42,s=job_shop"`
-- `"n_jobs=100,n_machines=55,n_operations=55,s=fjsp_high"`
-- `"n_jobs=100,n_machines=55,n_operations=55,s=fjsp_medium"`
-- `"n_jobs=100,n_machines=55,n_operations=55,s=flow_shop"`
-- `"n_jobs=100,n_machines=55,n_operations=55,s=hybrid_flow_shop"`
-- `"n_jobs=100,n_machines=55,n_operations=55,s=job_shop"`
+As a Python module, the same entry points are available:
+```python
+import tig
+
+tig.generate_dataset(
+    "job_scheduling",
+    "datasets/job_scheduling/datasets_config.json",
+    out_dir=None,
+)
+
+tig.run_algorithm(
+    "job_scheduling",
+    "datasets/job_scheduling/test/n=50,s=flow_shop",
+    num_workers=4,
+    timeout=120,
+)
+
+tig.evaluate_solutions(
+    "job_scheduling",
+    "datasets/job_scheduling/test/n=50,s=flow_shop",
+    solutions_dir=None,
+    snapshots=False,
+    num_workers=4,
+)
+```
 
 ---
 

@@ -15,9 +15,7 @@ __pycache__/
 
 # Ignore these. 
 db_data/
-datasets/knapsack/test
-datasets/knapsack/train
-datasets/vehicle_routing/test
-datasets/vehicle_routing/train
+datasets/**/*.txt
+datasets/**/*.solution*
 
 .DS_Store
