@@ -1,8 +1,23 @@
 {
     "seed": "train",
-    "n=50,s=fjsp_high": 100,
-    "n=50,s=fjsp_medium": 100,
-    "n=50,s=flow_shop": 100,
-    "n=50,s=hybrid_flow_shop": 100,
-    "n=50,s=job_shop": 100
+    "n_jobs=25,n_machines=15,n_operations=15,s=fjsp_high": 20,
+    "n_jobs=25,n_machines=15,n_operations=15,s=fjsp_medium": 20,
+    "n_jobs=25,n_machines=15,n_operations=15,s=flow_shop": 20,
+    "n_jobs=25,n_machines=15,n_operations=15,s=hybrid_flow_shop": 20,
+    "n_jobs=25,n_machines=15,n_operations=15,s=job_shop": 20,
+    "n_jobs=50,n_machines=30,n_operations=30,s=fjsp_high": 15,
+    "n_jobs=50,n_machines=30,n_operations=30,s=fjsp_medium": 15,
+    "n_jobs=50,n_machines=30,n_operations=30,s=flow_shop": 15,
+    "n_jobs=50,n_machines=30,n_operations=30,s=hybrid_flow_shop": 15,
+    "n_jobs=50,n_machines=30,n_operations=30,s=job_shop": 15,
+    "n_jobs=75,n_machines=42,n_operations=42,s=fjsp_high": 10,
+    "n_jobs=75,n_machines=42,n_operations=42,s=fjsp_medium": 10,
+    "n_jobs=75,n_machines=42,n_operations=42,s=flow_shop": 10,
+    "n_jobs=75,n_machines=42,n_operations=42,s=hybrid_flow_shop": 10,
+    "n_jobs=75,n_machines=42,n_operations=42,s=job_shop": 10,
+    "n_jobs=100,n_machines=55,n_operations=55,s=fjsp_high": 5,
+    "n_jobs=100,n_machines=55,n_operations=55,s=fjsp_medium": 5,
+    "n_jobs=100,n_machines=55,n_operations=55,s=flow_shop": 5,
+    "n_jobs=100,n_machines=55,n_operations=55,s=hybrid_flow_shop": 5,
+    "n_jobs=100,n_machines=55,n_operations=55,s=job_shop": 5
 }
