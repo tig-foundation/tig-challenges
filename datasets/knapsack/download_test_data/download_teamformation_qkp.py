@@ -12,7 +12,7 @@ https://github.com/phil85/benchmark-instances-for-qkp/blob/main/generate_instanc
 """
 
 import os
-import io
+import tempfile
 import time
 import concurrent.futures
 
@@ -24,7 +24,7 @@ import requests
 # ---------------------------------------------------------------------------
 THIS_DIR = os.path.abspath(os.path.dirname(__file__))
 # Project root is three levels up from this file:
-#   tig-challenges/src/knapsack/download_test_data/download_teamformation_qkp.py
+#   tig-challenges/datasets/knapsack/download_test_data/download_teamformation_qkp.py
 TIG_ROOT = os.path.abspath(os.path.join(THIS_DIR, "..", "..", ".."))
 TEST_ROOT = os.path.join(TIG_ROOT, "datasets", "knapsack", "test")
 
@@ -67,6 +67,17 @@ def _fetch(url: str) -> bytes:
             time.sleep(2 ** attempt)
 
 
+def _write_bytes_to_temp(content: bytes, suffix: str) -> str:
+    """Persist downloaded bytes to a temp file; caller must os.unlink(path) when done."""
+    tf = tempfile.NamedTemporaryFile(delete=False, suffix=suffix)
+    try:
+        tf.write(content)
+        path = tf.name
+    finally:
+        tf.close()
+    return path
+
+
 def _budgets_for_weights(weights: np.ndarray) -> list[int]:
     total = int(weights.sum())
     return [max(1, int(f * total)) for f in BUDGET_FRACTIONS]
@@ -84,7 +95,7 @@ def _write_tig(out_path: str,
         for i, j, u in edges:
             f.write(f"{i} {j} {u}\n")
         f.write(" ".join(str(w) for w in weights) + "\n")
-        # One budget per fraction, space-separated on a single line
+        # Single budget per file (callers pass a one-element list per budget fraction)
         f.write(" ".join(str(b) for b in budgets) + "\n")
 
 
@@ -98,7 +109,15 @@ def _process_synthetic_file(filename: str) -> None:
     out_dir = os.path.join(TEST_ROOT, "TeamFormation-QKP")
 
     print(f"  Downloading {filename} …")
-    raw = _fetch(url).decode()
+    tmp_path = _write_bytes_to_temp(_fetch(url), ".txt")
+    try:
+        with open(tmp_path, encoding="utf-8") as tf:
+            raw = tf.read()
+    finally:
+        try:
+            os.unlink(tmp_path)
+        except OSError:
+            pass
 
     lines = raw.splitlines()
     header = lines[0].split()
@@ -162,10 +181,15 @@ def _process_real_file(filename: str) -> None:
     out_dir = os.path.join(TEST_ROOT, "TeamFormation-QKP")
 
     print(f"  Downloading {filename} …")
-    raw = _fetch(url)
-
-    xls = pd.ExcelFile(io.BytesIO(raw), engine="openpyxl")
-    df = xls.parse(xls.sheet_names[0], header=None, index_col=None)
+    tmp_path = _write_bytes_to_temp(_fetch(url), ".xlsx")
+    try:
+        xls = pd.ExcelFile(tmp_path, engine="openpyxl")
+        df = xls.parse(xls.sheet_names[0], header=None, index_col=None)
+    finally:
+        try:
+            os.unlink(tmp_path)
+        except OSError:
+            pass
 
     # Map participant name/ID (col 0) → sequential index
     participants = df.iloc[:, 0].tolist()
@@ -299,5 +323,5 @@ def download_synthetic_tf2() -> None:
 if __name__ == "__main__":
     download_synthetic()
     download_real()
-    # download_synthetic_tf2()
+    download_synthetic_tf2()
     print("\nDone.")

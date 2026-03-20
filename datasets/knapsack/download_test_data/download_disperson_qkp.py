@@ -1,40 +1,36 @@
-
 import numpy as np
 import os
 
 budget_fractions = [0.025, 0.05, 0.1, 0.25, 0.5, 0.75]
 
-# %%
+THIS_DIR = os.path.abspath(os.path.dirname(__file__))
+TIG_ROOT = os.path.abspath(os.path.join(THIS_DIR, "..", "..", ".."))
+TEST_ROOT = os.path.join(TIG_ROOT, "datasets", "knapsack", "test")
 
 
-def write_file(nodes, edges, weights, budgets, folder_name, file_name, weight_type='int'):
+def write_file(nodes, edges, weights, budget, folder_name, file_name, weight_type='int'):
+    """Write one TIG instance file with a single budget on the last line."""
 
-    # Open file
-    os.makedirs('datasets/knapsack/test/{:s}'.format(folder_name), exist_ok=True)
-    f = open('datasets/knapsack/test/{:s}/{:s}'.format(folder_name, file_name), 'w')
+    out_dir = os.path.join(TEST_ROOT, folder_name)
+    os.makedirs(out_dir, exist_ok=True)
+    out_path = os.path.join(out_dir, file_name)
 
-    # Write header
     n_nodes = len(nodes)
     n_edges = len(edges)
-    f.write('{:d} {:d} {:s}\n'.format(n_nodes, n_edges, weight_type))
+    with open(out_path, 'w') as f:
+        f.write('{:d} {:d} {:s}\n'.format(n_nodes, n_edges, weight_type))
 
-    # Write edges
-    for (i, j) in edges:
-        if weight_type == 'int':
-            f.write('{:d} {:d} {:d}\n'.format(i, j, edges[(i, j)]))
-        else:
-            f.write('{:d} {:d} {:.6f}\n'.format(i, j, edges[(i, j)]))
+        for (i, j) in edges:
+            if weight_type == 'int':
+                f.write('{:d} {:d} {:d}\n'.format(i, j, edges[(i, j)]))
+            else:
+                f.write('{:d} {:d} {:.6f}\n'.format(i, j, edges[(i, j)]))
 
-    # Write weights
-    for weight in weights:
-        f.write('{:d} '.format(weight))
-    f.write('\n')
+        for weight in weights:
+            f.write('{:d} '.format(weight))
+        f.write('\n')
 
-    # Write budgets
-    for budget in budgets:
-        f.write('{:d} '.format(budget))
-
-    f.close()
+        f.write('{:d}\n'.format(budget))
 
 
 def generate_geometrical_problem_instance(n_nodes):
@@ -142,12 +138,21 @@ for n_nodes in n_nodes_values:
                     if utility_matrix[i, j] > 0:
                         edges[i, j] = utility_matrix[i, j]
 
-            # Add budgets
-            budgets = []
+            weight_sum = int(np.sum(weights))
             for budget_fraction in budget_fractions:
-                budgets.append(int(budget_fraction * np.sum(weights)))
-
-            write_file(nodes, edges, weights, budgets, 'Dispersion-QKP',
-                       'dispersion-qkp-{:s}_{:d}_{:d}.txt'.format(instance_type, n_nodes,
-                                                                  int(sparsification_fraction * 100)),
-                       weight_type='float')
+                budget = int(budget_fraction * weight_sum)
+                fname = 'dispersion-qkp-{:s}_{:d}_{:d}_b{:04d}.txt'.format(
+                    instance_type,
+                    n_nodes,
+                    int(sparsification_fraction * 100),
+                    int(budget_fraction * 1000),
+                )
+                write_file(
+                    nodes,
+                    edges,
+                    weights,
+                    budget,
+                    'Dispersion-QKP',
+                    fname,
+                    weight_type='float',
+                )

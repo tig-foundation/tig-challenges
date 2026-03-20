@@ -1,0 +1,121 @@
+Instance,Budget,BKS
+Synthetic TF 01000,2.5,31.9
+Synthetic TF 01000,5,57.6
+Synthetic TF 01000,10,104.5
+Synthetic TF 01000,25,229.6
+Synthetic TF 01000,50,418.1
+Synthetic TF 01000,75,573
+Synthetic TF 02000,2.5,116.5
+Synthetic TF 02000,5,208.5
+Synthetic TF 02000,10,372.3
+Synthetic TF 02000,25,838.3
+Synthetic TF 02000,50,1598.5
+Synthetic TF 02000,75,2236.5
+Synthetic TF 04000,2.5,391.4
+Synthetic TF 04000,5,702.4
+Synthetic TF 04000,10,1285.4
+Synthetic TF 04000,25,3149.7
+Synthetic TF 04000,50,6177.7
+Synthetic TF 04000,75,8717.6
+Synthetic TF 06000,2.5,655.8
+Synthetic TF 06000,5,1284.3
+Synthetic TF 06000,10,2666.5
+Synthetic TF 06000,25,6866.4
+Synthetic TF 06000,50,13690.7
+Synthetic TF 06000,75,19597.2
+Synthetic TF 08000,2.5,1228.3
+Synthetic TF 08000,5,2327.9
+Synthetic TF 08000,10,4702.1
+Synthetic TF 08000,25,12082.6
+Synthetic TF 08000,50,24278.8
+Synthetic TF 08000,75,34905.1
+Synthetic TF 10000,2.5,1827.9
+Synthetic TF 10000,5,3518.4
+Synthetic TF 10000,10,7107.6
+Synthetic TF 10000,25,18590.7
+Synthetic TF 10000,50,37621.3
+Synthetic TF 10000,75,54050.1
+Bibsonomy,2.5,661.9
+Bibsonomy,5,956.2
+Bibsonomy,10,1386
+Bibsonomy,25,2284.9
+Bibsonomy,50,3227.8
+Bibsonomy,75,3786.6
+DBLP,2.5,245.9
+DBLP,5,399.2
+DBLP,10,641
+DBLP,25,1176
+DBLP,50,1768.2
+DBLP,75,2142
+IMDB,2.5,23.1
+IMDB,5,44.2
+IMDB,10,81.6
+IMDB,25,167.3
+IMDB,50,253.2
+IMDB,75,291.6
+StackOverflow,2.5,117.2
+StackOverflow,5,223.8
+StackOverflow,10,398.6
+StackOverflow,25,729.9
+StackOverflow,50,1006.4
+StackOverflow,75,1130.9
+Synthetic 01,2.5,247
+Synthetic 01,5,408.3
+Synthetic 01,10,662.7
+Synthetic 01,25,1209.5
+Synthetic 01,50,1820.6
+Synthetic 01,75,2216.2
+Synthetic 02,2.5,292.9
+Synthetic 02,5,485.9
+Synthetic 02,10,789.2
+Synthetic 02,25,1412.8
+Synthetic 02,50,2069.3
+Synthetic 02,75,2488.1
+Synthetic 03,2.5,258.8
+Synthetic 03,5,437.3
+Synthetic 03,10,714.8
+Synthetic 03,25,1292.3
+Synthetic 03,50,1922.2
+Synthetic 03,75,2338.7
+Synthetic 04,2.5,235.9
+Synthetic 04,5,420
+Synthetic 04,10,705.6
+Synthetic 04,25,1282.8
+Synthetic 04,50,1885.7
+Synthetic 04,75,2270.5
+Synthetic 05,2.5,263.4
+Synthetic 05,5,451.4
+Synthetic 05,10,728.2
+Synthetic 05,25,1297.9
+Synthetic 05,50,1914.2
+Synthetic 05,75,2315.3
+Synthetic 06,2.5,248.9
+Synthetic 06,5,419.1
+Synthetic 06,10,685.9
+Synthetic 06,25,1249.7
+Synthetic 06,50,1861.7
+Synthetic 06,75,2250
+Synthetic 07,2.5,291.6
+Synthetic 07,5,490.2
+Synthetic 07,10,788.4
+Synthetic 07,25,1389.5
+Synthetic 07,50,2026.6
+Synthetic 07,75,2429.5
+Synthetic 08,2.5,242.1
+Synthetic 08,5,419.8
+Synthetic 08,10,698.1
+Synthetic 08,25,1275
+Synthetic 08,50,1896.6
+Synthetic 08,75,2293.9
+Synthetic 09,2.5,244.3
+Synthetic 09,5,427
+Synthetic 09,10,720.9
+Synthetic 09,25,1329.8
+Synthetic 09,50,1980
+Synthetic 09,75,2389.4
+Synthetic 10,2.5,262.7
+Synthetic 10,5,447.7
+Synthetic 10,10,738.8
+Synthetic 10,25,1319.7
+Synthetic 10,50,1950
+Synthetic 10,75,2349.1

@@ -87,7 +87,9 @@ impl Challenge {
                 .parse()
                 .map_err(|e| anyhow!("Invalid j: {}", e))?;
             let u: i32 = edge_parts[2]
-                .parse()
+                .parse::<f64>()
+                .map(|v| v.round() as i32)
+                .or_else(|_| edge_parts[2].parse::<i32>())
                 .map_err(|e| anyhow!("Invalid u_ij: {}", e))?;
             if i >= n || j >= n {
                 return Err(anyhow!("Edge index out of range: {} {}", i, j));

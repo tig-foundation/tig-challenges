@@ -3,20 +3,11 @@
 ## Submission Details
 
 * **Challenge Name:** knapsack
-* **Algorithm Name:** near_knap_improve_v1
-* **Copyright:** 2026 NVX
-* **Identity of Submitter:** NVX
-* **Identity of Creator of Algorithmic Method:** NVX
+* **Algorithm Name:** SD_QKP_01
+* **Copyright:** 2026 SD  
+* **Identity of Submitter:** SD
+* **Identity of Creator of Algorithmic Method:** null
 * **Unique Algorithm Identifier (UAI):** null
-
-
-## References and Acknowledgments
-
-### 1. Academic Papers
-- Glover, F., Hao, J.K., *"The Quadratic Knapsack Problem - A Survey"*, DOI: 10.1016/j.ejor.2006.07.050
-
-### 2. Code References
-- near_knap – https://github.com/tig-foundation/tig-monorepo
 
 
 ## License
