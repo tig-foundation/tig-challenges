@@ -18,4 +18,7 @@ db_data/
 datasets/**/*.txt
 datasets/**/*.solution*
 
+# Baseline / experiment outputs (see scripts/run_baseline_test_tig.sh)
+runs/
+
 .DS_Store

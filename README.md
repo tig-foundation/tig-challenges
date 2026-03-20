@@ -49,6 +49,14 @@ Notes:
 - Add `--baseline` to run the built-in baseline solver.
 - Add `--csv runs.csv` to export runtime and memory stats.
 
+**Batch baseline on all test/TIG splits** (30-minute cap per instance, 5-minute snapshots by default):
+
+```bash
+./scripts/run_baseline_test_tig.sh
+```
+
+Outputs go under `runs/baseline_testTIG_t1800_i300/<challenge>/` (mirroring `datasets/<challenge>/test/TIG/...`), plus `manifest.json` and per-challenge `runs.csv`. Override `TIMEOUT`, `INTERVAL`, `WORKERS`, or `RUN_ROOT` via environment variables (see comments in the script).
+
 ### 4. Evaluate solutions
 
 Score generated solutions:
