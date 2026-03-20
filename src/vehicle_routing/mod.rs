@@ -11,13 +11,13 @@ pub use solution::*;
 
 use anyhow::{anyhow, Result};
 use rand::{rngs::SmallRng, Rng, SeedableRng};
+use serde::{Deserialize, Serialize};
 use statrs::function::erf::{erf, erf_inv};
 use std::collections::{HashMap, HashSet};
 
-impl_kv_string_serde! {
-    Track {
-        n_nodes: usize,
-    }
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Track {
+    pub n_nodes: usize,
 }
 
 impl Challenge {

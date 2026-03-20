@@ -8,6 +8,7 @@ mod solution;
 use anyhow::{anyhow, Result};
 pub use challenge::*;
 use rand::{rngs::SmallRng, Rng, SeedableRng};
+use serde::{Deserialize, Serialize};
 pub use solution::*;
 use std::{collections::HashSet, f64::consts::PI};
 
@@ -19,14 +20,14 @@ fn sample_lognormal(rng: &mut SmallRng, mean: f64, std_dev: f64) -> f64 {
     (mean + std_dev * z).exp()
 }
 
-impl_kv_string_serde! {
-    Track {
-        n_items: usize,
-        budget: u32,
-        density: u32,
-        dispersion: String,
-        class: String,
-    }
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Track {
+    pub n_items: usize,
+    pub budget: u32,
+    pub density: u32,
+    #[serde(default)]
+    pub dispersion: String,
+    pub class: String,
 }
 
 impl Challenge {
@@ -73,8 +74,7 @@ impl Challenge {
             }
         }
 
-        let max_weight =
-            (track.budget as f64 / 100.0 * weights.iter().sum::<u32>() as f64) as u32;
+        let max_weight = (track.budget as f64 / 100.0 * weights.iter().sum::<u32>() as f64) as u32;
 
         Ok(Challenge {
             seed: *seed,
@@ -162,8 +162,7 @@ impl Challenge {
             .map(|_| rng.gen_range(1..=max_weight_val))
             .collect();
         let values: Vec<u32> = vec![0; n_participants];
-        let max_weight =
-            (track.budget as f64 / 100.0 * weights.iter().sum::<u32>() as f64) as u32;
+        let max_weight = (track.budget as f64 / 100.0 * weights.iter().sum::<u32>() as f64) as u32;
 
         Ok(Challenge {
             seed: *seed,
@@ -208,8 +207,7 @@ impl Challenge {
 
         let weights: Vec<u32> = (0..n_nodes).map(|_| rng.gen_range(1..=100)).collect();
         let values: Vec<u32> = vec![0; n_nodes];
-        let max_weight =
-            (track.budget as f64 / 100.0 * weights.iter().sum::<u32>() as f64) as u32;
+        let max_weight = (track.budget as f64 / 100.0 * weights.iter().sum::<u32>() as f64) as u32;
 
         Ok(Challenge {
             seed: *seed,
@@ -223,7 +221,7 @@ impl Challenge {
 
     fn generate_geo_utility(rng: &mut SmallRng, n_nodes: usize) -> Vec<Vec<f64>> {
         let locations: Vec<(f64, f64)> = (0..n_nodes)
-            .map(|_| (rng.gen::<f64>() * 100.0, rng.gen::<f64>() * 100.0))
+            .map(|_| (rng.r#gen::<f64>() * 100.0, rng.r#gen::<f64>() * 100.0))
             .collect();
         let mut distances = vec![vec![0.0; n_nodes]; n_nodes];
         for i in 0..n_nodes {
@@ -240,10 +238,10 @@ impl Challenge {
 
     fn generate_wgeo_utility(rng: &mut SmallRng, n_nodes: usize) -> Vec<Vec<f64>> {
         let locations: Vec<(f64, f64)> = (0..n_nodes)
-            .map(|_| (rng.gen::<f64>() * 100.0, rng.gen::<f64>() * 100.0))
+            .map(|_| (rng.r#gen::<f64>() * 100.0, rng.r#gen::<f64>() * 100.0))
             .collect();
         let node_weights: Vec<f64> = (0..n_nodes)
-            .map(|_| rng.gen::<f64>() * 5.0 + 5.0)
+            .map(|_| rng.r#gen::<f64>() * 5.0 + 5.0)
             .collect();
         let mut distances = vec![vec![0.0; n_nodes]; n_nodes];
         for i in 0..n_nodes {
@@ -264,7 +262,7 @@ impl Challenge {
         let mut distances = vec![vec![0.0; n_nodes]; n_nodes];
         for i in 0..n_nodes {
             for j in (i + 1)..n_nodes {
-                let u: f64 = rng.gen();
+                let u: f64 = rng.r#gen();
                 let value = -mean * u.ln();
                 distances[i][j] = value;
                 distances[j][i] = value;

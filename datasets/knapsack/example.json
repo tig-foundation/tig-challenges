@@ -1,0 +1,21 @@
+{
+    "seed": "test",
+    "tig/set1": {
+        "track": {
+            "class": "team_formation",
+            "n_items": 1000,
+            "budget": 10,
+            "density": 0
+        },
+        "n_instances": 10
+    },
+    "tig/set2": {
+        "track": {
+            "class": "team_formation",
+            "n_items": 1000,
+            "budget": 5,
+            "density": 0
+        },
+        "n_instances": 10
+    }
+}

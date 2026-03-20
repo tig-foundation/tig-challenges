@@ -13,7 +13,7 @@ fn cli() -> Command {
                 .value_parser(value_parser!(String)),
         )
         .arg(
-            arg!(<TRACK> "Track specification (key=value,key=value format, challenge-specific)")
+            arg!(<TRACK> "Track JSON (challenge-specific)")
                 .value_parser(value_parser!(String)),
         )
         .arg(
@@ -46,15 +46,10 @@ fn run_generate(
 
     macro_rules! dispatch_generate {
         ($c:ident) => {{
-            let track = if track_id.starts_with('"') && track_id.ends_with('"') {
-                track_id.to_string()
-            } else {
-                format!(r#""{}""#, track_id)
-            };
-            let track = serde_json::from_str::<challenges::$c::Track>(&track).map_err(|e| {
+            let track = serde_json::from_str::<challenges::$c::Track>(track_id).map_err(|e| {
                 anyhow::anyhow!(
                     "Failed to parse track '{}' as {}::Track: {}",
-                    track,
+                    track_id,
                     stringify!($c),
                     e
                 )

@@ -50,17 +50,19 @@ def generate_dataset(challenge: str, config_path: str, out_dir: str):
         config = json.load(f)
     seed = config.pop("seed")
     if out_dir is None:
-        out_dir = os.path.join("datasets", challenge, seed)
-    for track_id, n in config.items():
+        out_dir = os.path.join("datasets", challenge)
+    for name, x in config.items():
         start = time.time()
-        logger.info("Generating %s/%s instances (seed=%s, n=%s)", challenge, track_id, seed, n)
+        track = x["track"]
+        n = x["n_instances"]
+        logger.info("Generating %s/%s instances (seed=%s, n=%s)", challenge, name, seed, n)
         subprocess.run([
             f"{ROOT_DIR}/target/release/tig_generator",
             challenge,
-            track_id,
+            json.dumps(track, separators=(",", ":")),
             "--seed", seed,
             "-n", str(n),
-            "-o", os.path.join(out_dir, track_id),
+            "-o", os.path.join(out_dir, name),
         ], check=True)
         logger.info("Generated in %.2fs", time.time() - start)
 

@@ -15,10 +15,11 @@ use rand::{
 };
 use rand_distr::Normal;
 use scenarios::*;
+use serde::{Deserialize, Serialize};
 pub use solution::*;
 use std::collections::{HashMap, HashSet};
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Track {
     pub n_jobs: usize,
     pub n_machines: usize,
@@ -27,114 +28,6 @@ pub struct Track {
     pub reentrance_level: f32,
     pub flow_structure: f32,
     pub product_mix_ratio: f32,
-}
-
-impl serde::Serialize for Track {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        let s = format!(
-            "avg_op_flexibility={},flow_structure={},n_jobs={},n_machines={},n_operations={},product_mix_ratio={},reentrance_level={}",
-            self.avg_op_flexibility,
-            self.flow_structure,
-            self.n_jobs,
-            self.n_machines,
-            self.n_operations,
-            self.product_mix_ratio,
-            self.reentrance_level,
-        );
-        serializer.serialize_str(&s)
-    }
-}
-
-impl<'de> serde::Deserialize<'de> for Track {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        use serde::de::{Error, Visitor};
-        use std::fmt;
-
-        struct TrackVisitor;
-
-        impl<'de> Visitor<'de> for TrackVisitor {
-            type Value = Track;
-
-            fn expecting(&self, f: &mut fmt::Formatter) -> fmt::Result {
-                write!(f, "a string of the form 'key=value,key=value' with fields n_jobs (or n), and either s=<scenario> or explicit avg_op_flexibility/reentrance_level/flow_structure/product_mix_ratio; n_machines and n_operations are optional (default: n_jobs/2+5)")
-            }
-
-            fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
-            where
-                E: Error,
-            {
-                let mut map = std::collections::HashMap::<&str, &str>::new();
-                for part in v.split(',') {
-                    let mut kv = part.splitn(2, '=');
-                    let key = kv.next().ok_or_else(|| E::custom(format!("Missing key in '{}'", part)))?;
-                    let val = kv.next().ok_or_else(|| E::custom(format!("Missing value in '{}'", part)))?;
-                    map.insert(key, val);
-                }
-
-                // n_jobs: accept either "n_jobs" or legacy "n"
-                let n_jobs: usize = if let Some(v) = map.get("n_jobs") {
-                    v.parse().map_err(E::custom)?
-                } else if let Some(v) = map.get("n") {
-                    v.parse().map_err(E::custom)?
-                } else {
-                    return Err(E::custom("Missing field 'n_jobs' (or 'n')"));
-                };
-
-                // scenario base defaults (used when individual params are absent)
-                let scenario_config: Option<ScenarioConfig> = if let Some(s) = map.get("s") {
-                    let scenario: Scenario = s.parse().map_err(E::custom)?;
-                    Some(scenario.into())
-                } else {
-                    None
-                };
-
-                let parse_f32 = |key: &str, fallback: Option<f32>| -> Result<f32, E> {
-                    if let Some(v) = map.get(key) {
-                        v.parse().map_err(E::custom)
-                    } else if let Some(f) = fallback {
-                        Ok(f)
-                    } else {
-                        Err(E::custom(format!("Missing field '{}' (provide it directly or via 's=<scenario>')", key)))
-                    }
-                };
-
-                let avg_op_flexibility = parse_f32("avg_op_flexibility", scenario_config.as_ref().map(|c| c.avg_op_flexibility))?;
-                let reentrance_level   = parse_f32("reentrance_level",   scenario_config.as_ref().map(|c| c.reentrance_level))?;
-                let flow_structure     = parse_f32("flow_structure",     scenario_config.as_ref().map(|c| c.flow_structure))?;
-                let product_mix_ratio  = parse_f32("product_mix_ratio",  scenario_config.as_ref().map(|c| c.product_mix_ratio))?;
-
-                let default_derived = n_jobs / 2 + 5;
-                let n_machines: usize = if let Some(v) = map.get("n_machines") {
-                    v.parse().map_err(E::custom)?
-                } else {
-                    default_derived
-                };
-                let n_operations: usize = if let Some(v) = map.get("n_operations") {
-                    v.parse().map_err(E::custom)?
-                } else {
-                    default_derived
-                };
-
-                Ok(Track {
-                    n_jobs,
-                    n_machines,
-                    n_operations,
-                    avg_op_flexibility,
-                    reentrance_level,
-                    flow_structure,
-                    product_mix_ratio,
-                })
-            }
-        }
-
-        deserializer.deserialize_str(TrackVisitor)
-    }
 }
 
 impl Challenge {
