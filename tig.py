@@ -59,7 +59,7 @@ def generate_dataset(challenge: str, config_path: str, out_dir: str):
         subprocess.run([
             f"{ROOT_DIR}/target/release/tig_generator",
             challenge,
-            json.dumps(track, separators=(",", ":")),
+            json.dumps(track, separators=(",", ":"), sort_keys=True),
             "--seed", seed,
             "-n", str(n),
             "-o", os.path.join(out_dir, name),
