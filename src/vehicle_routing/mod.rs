@@ -18,12 +18,18 @@ use std::collections::{HashMap, HashSet};
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Track {
     pub n_nodes: usize,
+    #[serde(default)]
+    pub capacity: usize,
+    #[serde(default)]
+    pub window_size: usize,
 }
 
 impl Challenge {
     pub fn generate_instance(seed: &[u8; 32], track: &Track) -> Result<Self> {
         let mut rng = SmallRng::from_seed(seed.clone());
-        let max_capacity = 200;
+        let max_capacity = track.capacity if track.capacity > 0 else 200;
+        let fleet_size = track.n_nodes / 4;
+        let window_size = track.window_size if track.window_size > 0 else 30;
 
         let num_clusters = rng.gen_range(3..=8);
         let mut node_positions: Vec<(i32, i32)> = Vec::with_capacity(track.n_nodes);
@@ -113,7 +119,7 @@ impl Challenge {
             }
 
             if rng.r#gen::<f64>() < 0.5 {
-                ready_times[node] = due_times[node] - rng.gen_range(10..=60);
+                ready_times[node] = due_times[node] - rng.gen_range(window_size/3..=window_size*2);
                 ready_times[node] = ready_times[node].max(0);
             }
         }
@@ -125,14 +131,14 @@ impl Challenge {
             node_positions,
             distance_matrix,
             max_capacity,
-            fleet_size: u32::MAX as usize,
+            fleet_size,
             service_time,
             ready_times,
             due_times,
         };
 
-        let solomon_solution = solomon::run(&c)?;
-        c.fleet_size = solomon_solution.routes.len() + 2;
+        // let solomon_solution = solomon::run(&c)?;
+        // c.fleet_size = solomon_solution.routes.len() + 2 if fleet_size else fleet_size;
 
         Ok(c)
     }

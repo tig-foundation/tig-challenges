@@ -1,40 +1,348 @@
 {
     "seed": "test",
-    "class=team_formation,n_items=1000,budget=5,density=0,dispersion=unused": 10,
-    "class=team_formation,n_items=1000,budget=10,density=0,dispersion=unused": 10,
-    "class=team_formation,n_items=1000,budget=25,density=0,dispersion=unused": 10,
-    "class=team_formation,n_items=1000,budget=50,density=0,dispersion=unused": 10,
-    "class=team_formation,n_items=5000,budget=10,density=0,dispersion=unused": 10,
-    "class=team_formation,n_items=5000,budget=25,density=0,dispersion=unused": 10,
-    "class=team_formation,n_items=10000,budget=10,density=0,dispersion=unused": 10,
-    "class=team_formation,n_items=10000,budget=25,density=0,dispersion=unused": 10,
-    "class=standard_qkp,n_items=500,budget=10,density=10,dispersion=unused": 10,
-    "class=standard_qkp,n_items=500,budget=25,density=10,dispersion=unused": 10,
-    "class=standard_qkp,n_items=500,budget=50,density=10,dispersion=unused": 10,
-    "class=standard_qkp,n_items=500,budget=10,density=25,dispersion=unused": 10,
-    "class=standard_qkp,n_items=500,budget=25,density=25,dispersion=unused": 10,
-    "class=standard_qkp,n_items=500,budget=50,density=25,dispersion=unused": 10,
-    "class=standard_qkp,n_items=500,budget=10,density=50,dispersion=unused": 10,
-    "class=standard_qkp,n_items=500,budget=25,density=50,dispersion=unused": 10,
-    "class=standard_qkp,n_items=500,budget=50,density=50,dispersion=unused": 10,
-    "class=dispersion_qkp,n_items=1000,budget=10,density=10,dispersion=geo": 10,
-    "class=dispersion_qkp,n_items=1000,budget=25,density=10,dispersion=geo": 10,
-    "class=dispersion_qkp,n_items=1000,budget=50,density=10,dispersion=geo": 10,
-    "class=dispersion_qkp,n_items=1000,budget=10,density=25,dispersion=geo": 10,
-    "class=dispersion_qkp,n_items=1000,budget=25,density=25,dispersion=geo": 10,
-    "class=dispersion_qkp,n_items=1000,budget=50,density=25,dispersion=geo": 10,
-    "class=dispersion_qkp,n_items=1000,budget=10,density=50,dispersion=geo": 10,
-    "class=dispersion_qkp,n_items=1000,budget=25,density=50,dispersion=geo": 10,
-    "class=dispersion_qkp,n_items=1000,budget=50,density=50,dispersion=geo": 10,
-    "class=dispersion_qkp,n_items=1000,budget=10,density=10,dispersion=wgeo": 10,
-    "class=dispersion_qkp,n_items=1000,budget=50,density=10,dispersion=wgeo": 10,
-    "class=dispersion_qkp,n_items=1000,budget=10,density=25,dispersion=wgeo": 10,
-    "class=dispersion_qkp,n_items=1000,budget=50,density=25,dispersion=wgeo": 10,
-    "class=dispersion_qkp,n_items=1000,budget=10,density=25,dispersion=expo": 10,
-    "class=dispersion_qkp,n_items=1000,budget=25,density=25,dispersion=expo": 10,
-    "class=dispersion_qkp,n_items=1000,budget=50,density=25,dispersion=expo": 10,
-    "class=dispersion_qkp,n_items=1000,budget=10,density=10,dispersion=ran": 10,
-    "class=dispersion_qkp,n_items=1000,budget=50,density=10,dispersion=ran": 10,
-    "class=dispersion_qkp,n_items=1000,budget=10,density=25,dispersion=ran": 10,
-    "class=dispersion_qkp,n_items=1000,budget=50,density=25,dispersion=ran": 10
+    "test/TIG/team_formation/tf_1000_b005": {
+        "track": {
+            "class": "team_formation",
+            "n_items": 1000,
+            "budget": 5
+        },
+        "n_instances": 10
+    },
+    "test/TIG/team_formation/tf_1000_b010": {
+        "track": {
+            "class": "team_formation",
+            "n_items": 1000,
+            "budget": 10
+        },
+        "n_instances": 10
+    },
+    "test/TIG/team_formation/tf_1000_b025": {
+        "track": {
+            "class": "team_formation",
+            "n_items": 1000,
+            "budget": 25
+        },
+        "n_instances": 10
+    },
+    "test/TIG/team_formation/tf_1000_b050": {
+        "track": {
+            "class": "team_formation",
+            "n_items": 1000,
+            "budget": 50
+        },
+        "n_instances": 10
+    },
+    "test/TIG/team_formation/tf_5000_b010": {
+        "track": {
+            "class": "team_formation",
+            "n_items": 5000,
+            "budget": 10
+        },
+        "n_instances": 10
+    },
+    "test/TIG/team_formation/tf_5000_b025": {
+        "track": {
+            "class": "team_formation",
+            "n_items": 5000,
+            "budget": 25
+        },
+        "n_instances": 10
+    },
+    "test/TIG/team_formation/tf_10000_b010": {
+        "track": {
+            "class": "team_formation",
+            "n_items": 10000,
+            "budget": 10
+        },
+        "n_instances": 10
+    },
+    "test/TIG/team_formation/tf_10000_b025": {
+        "track": {
+            "class": "team_formation",
+            "n_items": 10000,
+            "budget": 25
+        },
+        "n_instances": 10
+    },
+    "test/TIG/standard_qkp/500_10_b010": {
+        "track": {
+            "class": "standard_qkp",
+            "n_items": 500,
+            "budget": 10,
+            "density": 10
+        },
+        "n_instances": 10
+    },
+    "test/TIG/standard_qkp/500_10_b025": {
+        "track": {
+            "class": "standard_qkp",
+            "n_items": 500,
+            "budget": 25,
+            "density": 10
+        },
+        "n_instances": 10
+    },
+    "test/TIG/standard_qkp/500_10_b050": {
+        "track": {
+            "class": "standard_qkp",
+            "n_items": 500,
+            "budget": 50,
+            "density": 10
+        },
+        "n_instances": 10
+    },
+    "test/TIG/standard_qkp/500_25_b010": {
+        "track": {
+            "class": "standard_qkp",
+            "n_items": 500,
+            "budget": 10,
+            "density": 25
+        },
+        "n_instances": 10
+    },
+    "test/TIG/standard_qkp/500_25_b025": {
+        "track": {
+            "class": "standard_qkp",
+            "n_items": 500,
+            "budget": 25,
+            "density": 25
+        },
+        "n_instances": 10
+    },
+    "test/TIG/standard_qkp/500_25_b050": {
+        "track": {
+            "class": "standard_qkp",
+            "n_items": 500,
+            "budget": 50,
+            "density": 25
+        },
+        "n_instances": 10
+    },
+    "test/TIG/standard_qkp/500_50_b010": {
+        "track": {
+            "class": "standard_qkp",
+            "n_items": 500,
+            "budget": 10,
+            "density": 50
+        },
+        "n_instances": 10
+    },
+    "test/TIG/standard_qkp/500_50_b025": {
+        "track": {
+            "class": "standard_qkp",
+            "n_items": 500,
+            "budget": 25,
+            "density": 50
+        },
+        "n_instances": 10
+    },
+    "test/TIG/standard_qkp/500_50_b050": {
+        "track": {
+            "class": "standard_qkp",
+            "n_items": 500,
+            "budget": 50,
+            "density": 50
+        },
+        "n_instances": 10
+    },
+    "test/TIG/dispersion_qkp/geo_1000_10_b010": {
+        "track": {
+            "class": "dispersion_qkp",
+            "n_items": 1000,
+            "budget": 10,
+            "density": 10,
+            "dispersion": "geo"
+        },
+        "n_instances": 10
+    },
+    "test/TIG/dispersion_qkp/geo_1000_10_b025": {
+        "track": {
+            "class": "dispersion_qkp",
+            "n_items": 1000,
+            "budget": 25,
+            "density": 10,
+            "dispersion": "geo"
+        },
+        "n_instances": 10
+    },
+    "test/TIG/dispersion_qkp/geo_1000_10_b050": {
+        "track": {
+            "class": "dispersion_qkp",
+            "n_items": 1000,
+            "budget": 50,
+            "density": 10,
+            "dispersion": "geo"
+        },
+        "n_instances": 10
+    },
+    "test/TIG/dispersion_qkp/geo_1000_25_b010": {
+        "track": {
+            "class": "dispersion_qkp",
+            "n_items": 1000,
+            "budget": 10,
+            "density": 25,
+            "dispersion": "geo"
+        },
+        "n_instances": 10
+    },
+    "test/TIG/dispersion_qkp/geo_1000_25_b025": {
+        "track": {
+            "class": "dispersion_qkp",
+            "n_items": 1000,
+            "budget": 25,
+            "density": 25,
+            "dispersion": "geo"
+        },
+        "n_instances": 10
+    },
+    "test/TIG/dispersion_qkp/geo_1000_25_b050": {
+        "track": {
+            "class": "dispersion_qkp",
+            "n_items": 1000,
+            "budget": 50,
+            "density": 25,
+            "dispersion": "geo"
+        },
+        "n_instances": 10
+    },
+    "test/TIG/dispersion_qkp/geo_1000_50_b010": {
+        "track": {
+            "class": "dispersion_qkp",
+            "n_items": 1000,
+            "budget": 10,
+            "density": 50,
+            "dispersion": "geo"
+        },
+        "n_instances": 10
+    },
+    "test/TIG/dispersion_qkp/geo_1000_50_b025": {
+        "track": {
+            "class": "dispersion_qkp",
+            "n_items": 1000,
+            "budget": 25,
+            "density": 50,
+            "dispersion": "geo"
+        },
+        "n_instances": 10
+    },
+    "test/TIG/dispersion_qkp/geo_1000_50_b050": {
+        "track": {
+            "class": "dispersion_qkp",
+            "n_items": 1000,
+            "budget": 50,
+            "density": 50,
+            "dispersion": "geo"
+        },
+        "n_instances": 10
+    },
+    "test/TIG/dispersion_qkp/wgeo_1000_10_b010": {
+        "track": {
+            "class": "dispersion_qkp",
+            "n_items": 1000,
+            "budget": 10,
+            "density": 10,
+            "dispersion": "wgeo"
+        },
+        "n_instances": 10
+    },
+    "test/TIG/dispersion_qkp/wgeo_1000_10_b050": {
+        "track": {
+            "class": "dispersion_qkp",
+            "n_items": 1000,
+            "budget": 50,
+            "density": 10,
+            "dispersion": "wgeo"
+        },
+        "n_instances": 10
+    },
+    "test/TIG/dispersion_qkp/wgeo_1000_25_b010": {
+        "track": {
+            "class": "dispersion_qkp",
+            "n_items": 1000,
+            "budget": 10,
+            "density": 25,
+            "dispersion": "wgeo"
+        },
+        "n_instances": 10
+    },
+    "test/TIG/dispersion_qkp/wgeo_1000_25_b050": {
+        "track": {
+            "class": "dispersion_qkp",
+            "n_items": 1000,
+            "budget": 50,
+            "density": 25,
+            "dispersion": "wgeo"
+        },
+        "n_instances": 10
+    },
+    "test/TIG/dispersion_qkp/expo_1000_25_b010": {
+        "track": {
+            "class": "dispersion_qkp",
+            "n_items": 1000,
+            "budget": 10,
+            "density": 25,
+            "dispersion": "expo"
+        },
+        "n_instances": 10
+    },
+    "test/TIG/dispersion_qkp/expo_1000_25_b025": {
+        "track": {
+            "class": "dispersion_qkp",
+            "n_items": 1000,
+            "budget": 25,
+            "density": 25,
+            "dispersion": "expo"
+        },
+        "n_instances": 10
+    },
+    "test/TIG/dispersion_qkp/expo_1000_25_b050": {
+        "track": {
+            "class": "dispersion_qkp",
+            "n_items": 1000,
+            "budget": 50,
+            "density": 25,
+            "dispersion": "expo"
+        },
+        "n_instances": 10
+    },
+    "test/TIG/dispersion_qkp/ran_1000_10_b010": {
+        "track": {
+            "class": "dispersion_qkp",
+            "n_items": 1000,
+            "budget": 10,
+            "density": 10,
+            "dispersion": "ran"
+        },
+        "n_instances": 10
+    },
+    "test/TIG/dispersion_qkp/ran_1000_10_b050": {
+        "track": {
+            "class": "dispersion_qkp",
+            "n_items": 1000,
+            "budget": 50,
+            "density": 10,
+            "dispersion": "ran"
+        },
+        "n_instances": 10
+    },
+    "test/TIG/dispersion_qkp/ran_1000_25_b010": {
+        "track": {
+            "class": "dispersion_qkp",
+            "n_items": 1000,
+            "budget": 10,
+            "density": 25,
+            "dispersion": "ran"
+        },
+        "n_instances": 10
+    },
+    "test/TIG/dispersion_qkp/ran_1000_25_b050": {
+        "track": {
+            "class": "dispersion_qkp",
+            "n_items": 1000,
+            "budget": 50,
+            "density": 25,
+            "dispersion": "ran"
+        },
+        "n_instances": 10
+    }
 }

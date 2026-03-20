@@ -1,8 +1,57 @@
 {
     "seed": "train",
-    "n_nodes=600": 100,
-    "n_nodes=700": 100,
-    "n_nodes=800": 100,
-    "n_nodes=900": 100,
-    "n_nodes=1000": 100
+    "train/600": {
+        "track": {
+            "n_nodes": 600
+        },
+        "n_instances": 20
+    },
+    "train/700": {
+        "track": {
+            "n_nodes": 700
+        },
+        "n_instances": 20
+    },
+    "train/800": {
+        "track": {
+            "n_nodes": 800
+        },
+        "n_instances": 20
+    },
+    "train/900": {
+        "track": {
+            "n_nodes": 900
+        },
+        "n_instances": 20
+    },
+    "train/1000": {
+        "track": {
+            "n_nodes": 1000
+        },
+        "n_instances": 20
+    },
+    "train/2000": {
+        "track": {
+            "n_nodes": 2000
+        },
+        "n_instances": 20
+    },
+    "train/3000": {
+        "track": {
+            "n_nodes": 3000
+        },
+        "n_instances": 20
+    },
+    "train/5000": {
+        "track": {
+            "n_nodes": 5000
+        },
+        "n_instances": 20
+    },
+    "train/10000": {
+        "track": {
+            "n_nodes": 10000
+        },
+        "n_instances": 20
+    }
 }

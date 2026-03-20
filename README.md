@@ -28,7 +28,7 @@ Use one of the provided configs and generate instances:
 python3 tig.py generate_dataset job_scheduling datasets/job_scheduling/train.json
 ```
 
-This writes instance files under `datasets/job_scheduling/<seed>/...` by default.  
+Use `datasets/<challenge>/test.json` the same way to generate the test split (different `seed` and output paths in the file). This writes instance files under `datasets/job_scheduling/<seed>/...` by default.  
 To choose a custom output directory, pass `--out <dir>`.
 
 ### 2. Evolve or edit the algorithm
@@ -41,7 +41,7 @@ Keep all other code unchanged; only the algorithm files should evolve.
 Run the current algorithm on all instances in a dataset directory:
 
 ```bash
-python3 tig.py run_algorithm job_scheduling datasets/job_scheduling/test/n=50,s=flow_shop --workers 4 --timeout 120
+python3 tig.py run_algorithm job_scheduling datasets/job_scheduling/test/TIG/flow_shop/50_30_30 --workers 4 --timeout 120
 ```
 
 Notes:
@@ -54,7 +54,7 @@ Notes:
 Score generated solutions:
 
 ```bash
-python3 tig.py evaluate_solutions job_scheduling datasets/job_scheduling/test/n=50,s=flow_shop --csv eval.csv
+python3 tig.py evaluate_solutions job_scheduling datasets/job_scheduling/test/TIG/flow_shop/50_30_30 --csv eval.csv
 ```
 
 Optional:
@@ -99,8 +99,8 @@ Arguments/options:
 - `challenge`: one of `knapsack`, `vehicle_routing`, `job_scheduling`.
 - `config`: path to a JSON file containing:
   - `seed` (string), and
-  - track entries mapping `track_id -> n_instances`.
-- `--out`: optional output root directory. Default is `datasets/<challenge>/<seed>`.
+  - per-track entries: `track_id -> { "track": { … }, "n_instances": <int> }` (challenge-specific `track` fields; see each challenge’s `Track` type).
+- `--out`: optional output root directory. Default is `datasets/<challenge>`.
 
 Example:
 ```bash
@@ -128,7 +128,7 @@ Arguments/options:
 
 Example:
 ```bash
-python3 tig.py run_algorithm vehicle_routing datasets/vehicle_routing/test/n_nodes=800 --workers 4 --timeout 120 --csv runs.csv
+python3 tig.py run_algorithm vehicle_routing datasets/vehicle_routing/test/TIG/800 --workers 4 --timeout 120 --csv runs.csv
 ```
 
 ### `evaluate_solutions`
@@ -149,7 +149,7 @@ Arguments/options:
 
 Example:
 ```bash
-python3 tig.py evaluate_solutions vehicle_routing datasets/vehicle_routing/test/n_nodes=800 --solutions outputs --snapshots --csv eval.csv
+python3 tig.py evaluate_solutions vehicle_routing datasets/vehicle_routing/test/TIG/800 --solutions outputs --snapshots --csv eval.csv
 ```
 
 ### `import tig`
@@ -160,20 +160,20 @@ import tig
 
 tig.generate_dataset(
     "job_scheduling",
-    "datasets/job_scheduling/datasets_config.json",
+    "datasets/job_scheduling/train.json",
     out_dir=None,
 )
 
 tig.run_algorithm(
     "job_scheduling",
-    "datasets/job_scheduling/test/n=50,s=flow_shop",
+    "datasets/job_scheduling/test/TIG/flow_shop/50_30_30",
     num_workers=4,
     timeout=120,
 )
 
 tig.evaluate_solutions(
     "job_scheduling",
-    "datasets/job_scheduling/test/n=50,s=flow_shop",
+    "datasets/job_scheduling/test/TIG/flow_shop/50_30_30",
     solutions_dir=None,
     snapshots=False,
     num_workers=4,

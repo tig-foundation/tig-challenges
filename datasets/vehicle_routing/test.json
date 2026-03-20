@@ -1,8 +1,57 @@
 {
     "seed": "test",
-    "n_nodes=600": 100,
-    "n_nodes=700": 100,
-    "n_nodes=800": 100,
-    "n_nodes=900": 100,
-    "n_nodes=1000": 100
+    "test/TIG/600": {
+        "track": {
+            "n_nodes": 600
+        },
+        "n_instances": 20
+    },
+    "test/TIG/700": {
+        "track": {
+            "n_nodes": 700
+        },
+        "n_instances": 20
+    },
+    "test/TIG/800": {
+        "track": {
+            "n_nodes": 800
+        },
+        "n_instances": 20
+    },
+    "test/TIG/900": {
+        "track": {
+            "n_nodes": 900
+        },
+        "n_instances": 20
+    },
+    "test/TIG/1000": {
+        "track": {
+            "n_nodes": 1000
+        },
+        "n_instances": 20
+    },
+    "test/TIG/2000": {
+        "track": {
+            "n_nodes": 2000
+        },
+        "n_instances": 20
+    },
+    "test/TIG/3000": {
+        "track": {
+            "n_nodes": 3000
+        },
+        "n_instances": 20
+    },
+    "test/TIG/5000": {
+        "track": {
+            "n_nodes": 5000
+        },
+        "n_instances": 20
+    },
+    "test/TIG/10000": {
+        "track": {
+            "n_nodes": 10000
+        },
+        "n_instances": 20
+    }
 }

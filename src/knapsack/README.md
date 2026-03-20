@@ -25,16 +25,6 @@ $$
 
 A valid solution must use unique participant indices and have total weight at most the given capacity.
 
-### Track string (`key=value` list)
-
-Instance generation uses a single track string with `budget`, `density`, `dispersion`, `n_items`, and `class` (`standard_qkp`, `team_formation`, or `dispersion_qkp`).
-
-For **`team_formation`**, only `n_items` and `budget` affect the instance. **`density` and `dispersion` are ignored**—use placeholders so it is obvious they do not apply, for example **`density=0`** and **`dispersion=unused`** (any parsable `u32` and any string are accepted).
-
-For **`standard_qkp`**, `density` is the edge/value fill probability in percent; `dispersion` is ignored (same placeholder convention is fine).
-
-For **`dispersion_qkp`**, `dispersion` must be one of `geo`, `wgeo`, `expo`, or `ran`; `density` controls sparsification after the utility matrix is built.
-
 
 # Example
 

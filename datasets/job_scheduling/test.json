@@ -1,23 +1,243 @@
 {
     "seed": "test",
-    "n_jobs=25,n_machines=15,n_operations=15,s=fjsp_high": 20,
-    "n_jobs=25,n_machines=15,n_operations=15,s=fjsp_medium": 20,
-    "n_jobs=25,n_machines=15,n_operations=15,s=flow_shop": 20,
-    "n_jobs=25,n_machines=15,n_operations=15,s=hybrid_flow_shop": 20,
-    "n_jobs=25,n_machines=15,n_operations=15,s=job_shop": 20,
-    "n_jobs=50,n_machines=30,n_operations=30,s=fjsp_high": 15,
-    "n_jobs=50,n_machines=30,n_operations=30,s=fjsp_medium": 15,
-    "n_jobs=50,n_machines=30,n_operations=30,s=flow_shop": 15,
-    "n_jobs=50,n_machines=30,n_operations=30,s=hybrid_flow_shop": 15,
-    "n_jobs=50,n_machines=30,n_operations=30,s=job_shop": 15,
-    "n_jobs=75,n_machines=42,n_operations=42,s=fjsp_high": 10,
-    "n_jobs=75,n_machines=42,n_operations=42,s=fjsp_medium": 10,
-    "n_jobs=75,n_machines=42,n_operations=42,s=flow_shop": 10,
-    "n_jobs=75,n_machines=42,n_operations=42,s=hybrid_flow_shop": 10,
-    "n_jobs=75,n_machines=42,n_operations=42,s=job_shop": 10,
-    "n_jobs=100,n_machines=55,n_operations=55,s=fjsp_high": 5,
-    "n_jobs=100,n_machines=55,n_operations=55,s=fjsp_medium": 5,
-    "n_jobs=100,n_machines=55,n_operations=55,s=flow_shop": 5,
-    "n_jobs=100,n_machines=55,n_operations=55,s=hybrid_flow_shop": 5,
-    "n_jobs=100,n_machines=55,n_operations=55,s=job_shop": 5
+    "test/TIG/fjsp_high/25_15_15": {
+        "track": {
+            "n_jobs": 25,
+            "n_machines": 15,
+            "n_operations": 15,
+            "avg_op_flexibility": 10.0,
+            "reentrance_level": 0.0,
+            "flow_structure": 1.0,
+            "product_mix_ratio": 1.0
+        },
+        "n_instances": 20
+    },
+    "test/TIG/fjsp_high/50_30_30": {
+        "track": {
+            "n_jobs": 50,
+            "n_machines": 30,
+            "n_operations": 30,
+            "avg_op_flexibility": 10.0,
+            "reentrance_level": 0.0,
+            "flow_structure": 1.0,
+            "product_mix_ratio": 1.0
+        },
+        "n_instances": 15
+    },
+    "test/TIG/fjsp_high/75_42_42": {
+        "track": {
+            "n_jobs": 75,
+            "n_machines": 42,
+            "n_operations": 42,
+            "avg_op_flexibility": 10.0,
+            "reentrance_level": 0.0,
+            "flow_structure": 1.0,
+            "product_mix_ratio": 1.0
+        },
+        "n_instances": 10
+    },
+    "test/TIG/fjsp_high/100_55_55": {
+        "track": {
+            "n_jobs": 100,
+            "n_machines": 55,
+            "n_operations": 55,
+            "avg_op_flexibility": 10.0,
+            "reentrance_level": 0.0,
+            "flow_structure": 1.0,
+            "product_mix_ratio": 1.0
+        },
+        "n_instances": 5
+    },
+    "test/TIG/fjsp_medium/25_15_15": {
+        "track": {
+            "n_jobs": 25,
+            "n_machines": 15,
+            "n_operations": 15,
+            "avg_op_flexibility": 3.0,
+            "reentrance_level": 0.2,
+            "flow_structure": 0.4,
+            "product_mix_ratio": 1.0
+        },
+        "n_instances": 20
+    },
+    "test/TIG/fjsp_medium/50_30_30": {
+        "track": {
+            "n_jobs": 50,
+            "n_machines": 30,
+            "n_operations": 30,
+            "avg_op_flexibility": 3.0,
+            "reentrance_level": 0.2,
+            "flow_structure": 0.4,
+            "product_mix_ratio": 1.0
+        },
+        "n_instances": 15
+    },
+    "test/TIG/fjsp_medium/75_42_42": {
+        "track": {
+            "n_jobs": 75,
+            "n_machines": 42,
+            "n_operations": 42,
+            "avg_op_flexibility": 3.0,
+            "reentrance_level": 0.2,
+            "flow_structure": 0.4,
+            "product_mix_ratio": 1.0
+        },
+        "n_instances": 10
+    },
+    "test/TIG/fjsp_medium/100_55_55": {
+        "track": {
+            "n_jobs": 100,
+            "n_machines": 55,
+            "n_operations": 55,
+            "avg_op_flexibility": 3.0,
+            "reentrance_level": 0.2,
+            "flow_structure": 0.4,
+            "product_mix_ratio": 1.0
+        },
+        "n_instances": 5
+    },
+    "test/TIG/flow_shop/25_15_15": {
+        "track": {
+            "n_jobs": 25,
+            "n_machines": 15,
+            "n_operations": 15,
+            "avg_op_flexibility": 1.0,
+            "reentrance_level": 0.2,
+            "flow_structure": 0.0,
+            "product_mix_ratio": 0.5
+        },
+        "n_instances": 20
+    },
+    "test/TIG/flow_shop/50_30_30": {
+        "track": {
+            "n_jobs": 50,
+            "n_machines": 30,
+            "n_operations": 30,
+            "avg_op_flexibility": 1.0,
+            "reentrance_level": 0.2,
+            "flow_structure": 0.0,
+            "product_mix_ratio": 0.5
+        },
+        "n_instances": 15
+    },
+    "test/TIG/flow_shop/75_42_42": {
+        "track": {
+            "n_jobs": 75,
+            "n_machines": 42,
+            "n_operations": 42,
+            "avg_op_flexibility": 1.0,
+            "reentrance_level": 0.2,
+            "flow_structure": 0.0,
+            "product_mix_ratio": 0.5
+        },
+        "n_instances": 10
+    },
+    "test/TIG/flow_shop/100_55_55": {
+        "track": {
+            "n_jobs": 100,
+            "n_machines": 55,
+            "n_operations": 55,
+            "avg_op_flexibility": 1.0,
+            "reentrance_level": 0.2,
+            "flow_structure": 0.0,
+            "product_mix_ratio": 0.5
+        },
+        "n_instances": 5
+    },
+    "test/TIG/hybrid_flow_shop/25_15_15": {
+        "track": {
+            "n_jobs": 25,
+            "n_machines": 15,
+            "n_operations": 15,
+            "avg_op_flexibility": 3.0,
+            "reentrance_level": 0.2,
+            "flow_structure": 0.0,
+            "product_mix_ratio": 0.5
+        },
+        "n_instances": 20
+    },
+    "test/TIG/hybrid_flow_shop/50_30_30": {
+        "track": {
+            "n_jobs": 50,
+            "n_machines": 30,
+            "n_operations": 30,
+            "avg_op_flexibility": 3.0,
+            "reentrance_level": 0.2,
+            "flow_structure": 0.0,
+            "product_mix_ratio": 0.5
+        },
+        "n_instances": 15
+    },
+    "test/TIG/hybrid_flow_shop/75_42_42": {
+        "track": {
+            "n_jobs": 75,
+            "n_machines": 42,
+            "n_operations": 42,
+            "avg_op_flexibility": 3.0,
+            "reentrance_level": 0.2,
+            "flow_structure": 0.0,
+            "product_mix_ratio": 0.5
+        },
+        "n_instances": 10
+    },
+    "test/TIG/hybrid_flow_shop/100_55_55": {
+        "track": {
+            "n_jobs": 100,
+            "n_machines": 55,
+            "n_operations": 55,
+            "avg_op_flexibility": 3.0,
+            "reentrance_level": 0.2,
+            "flow_structure": 0.0,
+            "product_mix_ratio": 0.5
+        },
+        "n_instances": 5
+    },
+    "test/TIG/job_shop/25_15_15": {
+        "track": {
+            "n_jobs": 25,
+            "n_machines": 15,
+            "n_operations": 15,
+            "avg_op_flexibility": 1.0,
+            "reentrance_level": 0.0,
+            "flow_structure": 0.4,
+            "product_mix_ratio": 1.0
+        },
+        "n_instances": 20
+    },
+    "test/TIG/job_shop/50_30_30": {
+        "track": {
+            "n_jobs": 50,
+            "n_machines": 30,
+            "n_operations": 30,
+            "avg_op_flexibility": 1.0,
+            "reentrance_level": 0.0,
+            "flow_structure": 0.4,
+            "product_mix_ratio": 1.0
+        },
+        "n_instances": 15
+    },
+    "test/TIG/job_shop/75_42_42": {
+        "track": {
+            "n_jobs": 75,
+            "n_machines": 42,
+            "n_operations": 42,
+            "avg_op_flexibility": 1.0,
+            "reentrance_level": 0.0,
+            "flow_structure": 0.4,
+            "product_mix_ratio": 1.0
+        },
+        "n_instances": 10
+    },
+    "test/TIG/job_shop/100_55_55": {
+        "track": {
+            "n_jobs": 100,
+            "n_machines": 55,
+            "n_operations": 55,
+            "avg_op_flexibility": 1.0,
+            "reentrance_level": 0.0,
+            "flow_structure": 0.4,
+            "product_mix_ratio": 1.0
+        },
+        "n_instances": 5
+    }
 }

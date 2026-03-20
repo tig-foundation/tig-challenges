@@ -24,6 +24,7 @@ fn sample_lognormal(rng: &mut SmallRng, mean: f64, std_dev: f64) -> f64 {
 pub struct Track {
     pub n_items: usize,
     pub budget: u32,
+    #[serde(default)]
     pub density: u32,
     #[serde(default)]
     pub dispersion: String,

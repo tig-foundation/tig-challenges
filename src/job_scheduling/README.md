@@ -71,7 +71,6 @@ Instance and solution files use plain-text formats for interoperability.
 ---
 
 ## Our Challenge
-
 In TIG, your algorithm does not return a solution; it calls `save_solution` as it runs. The **last** saved solution is evaluated. A valid solution must meet all constraints above; invalid solutions are not scored.
 
 The evaluated metric is **quality** (a fixed-point integer with 6 decimal places), comparing your makespan to a greedy dispatching-rule baseline: `quality = 1.0 - make_span / greedy_makespan`
