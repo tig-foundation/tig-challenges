@@ -8610,20 +8610,36 @@ enum Track {
     FjspHigh,
 }
 
-fn parse_track(hyperparameters: &Option<Map<String, Value>>) -> Track {
+fn parse_track(hyperparameters: &Option<Map<String, Value>>) -> Option<Track> {
     if let Some(map) = hyperparameters {
         if let Some(Value::String(s)) = map.get("track") {
-            return match s.to_lowercase().as_str() {
+            return Some(match s.to_lowercase().as_str() {
                 "flow_shop" | "flow" => Track::FlowShop,
                 "hybrid_flow_shop" | "hybrid" => Track::HybridFlowShop,
                 "job_shop" | "job" => Track::JobShop,
                 "fjsp_medium" | "medium" => Track::FjspMedium,
                 "fjsp_high" | "high" | "fjsp" => Track::FjspHigh,
                 _ => Track::FjspHigh,
-            };
+            });
         }
     }
-    Track::FjspHigh
+    None
+}
+
+fn detect_track_from_pre(pre: &Pre) -> Track {
+    if pre.chaotic_like {
+        Track::FjspHigh
+    } else if pre.flow_like > 0.82 && pre.jobshopness < 0.38 && pre.high_flex < 0.3 {
+        Track::FlowShop
+    } else if pre.flow_like > 0.45 && pre.jobshopness < 0.55 && pre.flex_avg > 2.0 && pre.flex_avg < 4.0 && pre.high_flex < 0.1 {
+        Track::HybridFlowShop
+    } else if pre.jobshopness > 0.5 && pre.high_flex < 0.3 && pre.flow_like > 0.35 {
+        Track::JobShop
+    } else if pre.high_flex > 0.4 && pre.jobshopness > 0.4 {
+        Track::FjspMedium
+    } else {
+        Track::FjspMedium
+    }
 }
 
 fn parse_effort(hyperparameters: &Option<Map<String, Value>>) -> EffortConfig {
@@ -8657,7 +8673,7 @@ pub fn solve_challenge(
     hyperparameters: &Option<Map<String, Value>>,
 ) -> Result<()> {
     let pre = build_pre(challenge)?;
-    let track = parse_track(hyperparameters);
+    let track = parse_track(hyperparameters).unwrap_or_else(|| detect_track_from_pre(&pre));
     let effort = parse_effort(hyperparameters);
 
     match track {
