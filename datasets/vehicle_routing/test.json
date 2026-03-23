@@ -30,6 +30,18 @@
         },
         "n_instances": 20
     },
+    "test/TIG/1200": {
+        "track": {
+            "n_nodes": 1200
+        },
+        "n_instances": 20
+    },
+    "test/TIG/1500": {
+        "track": {
+            "n_nodes": 1500
+        },
+        "n_instances": 20
+    },
     "test/TIG/2000": {
         "track": {
             "n_nodes": 2000
@@ -45,12 +57,6 @@
     "test/TIG/5000": {
         "track": {
             "n_nodes": 5000
-        },
-        "n_instances": 20
-    },
-    "test/TIG/10000": {
-        "track": {
-            "n_nodes": 10000
         },
         "n_instances": 20
     }

@@ -74,6 +74,7 @@ def run_algorithm_on_instance(
     timeout: int = 60,
     interval: int = None,
     out_dir: str = None,
+    snapshot_times: list = None,
 ) -> tuple:
     try:
         time_taken, memory = None, None
@@ -100,9 +101,18 @@ def run_algorithm_on_instance(
             cmd += ["--hyperparameters", hyperparameters]
         logger.debug("Solver command: %s", " ".join(cmd))
 
+        snapshot_times_sorted = None
+        if snapshot_times:
+            snapshot_times_sorted = sorted(
+                {int(t) for t in snapshot_times if int(t) > 0}
+            )
+        snapshot_idx = 0
         snapshot_count = 0
-        if interval:
-            next_snapshot_at = time.time() + interval
+        start_time = time.time()
+        if snapshot_times_sorted:
+            next_snapshot_at = None
+        elif interval:
+            next_snapshot_at = start_time + interval
         else:
             next_snapshot_at = None
 
@@ -110,7 +120,23 @@ def run_algorithm_on_instance(
         stderr = None
         while True:
             now = time.time()
-            if next_snapshot_at is not None and now >= next_snapshot_at:
+            if snapshot_times_sorted:
+                while (
+                    snapshot_idx < len(snapshot_times_sorted)
+                    and now >= start_time + snapshot_times_sorted[snapshot_idx]
+                ):
+                    label = snapshot_times_sorted[snapshot_idx]
+                    snapshot_path = f"{solution_path}.{label}"
+                    if os.path.exists(solution_path):
+                        shutil.copy2(solution_path, snapshot_path)
+                        logger.debug("Snapshot %s -> %s", solution_path, snapshot_path)
+                    else:
+                        logger.debug(
+                            "Snapshot skipped; solution does not exist yet: %s",
+                            solution_path,
+                        )
+                    snapshot_idx += 1
+            elif next_snapshot_at is not None and now >= next_snapshot_at:
                 snapshot_count += 1
                 snapshot_path = f"{solution_path}.{snapshot_count * interval}"
                 if os.path.exists(solution_path):
@@ -153,6 +179,7 @@ def run_algorithm(
     out_dir: str = None,
     baseline: bool = False,
     csv_path: str = None,
+    snapshot_times: list = None,
 ) -> list:
     if baseline:
         logger.info("Building `tig_solver` (release, features=solver,baseline,%s)", challenge)
@@ -176,19 +203,29 @@ def run_algorithm(
         for path in glob.glob(f"{dataset_dir}/**/*.txt", recursive=True)
     ]
     logger.info(
-        "Running %s instances (challenge=%s workers=%s timeout=%ss interval=%s out=%s)",
+        "Running %s instances (challenge=%s workers=%s timeout=%ss interval=%s snapshot_times=%s out=%s)",
         len(instances),
         challenge,
         num_workers,
         timeout,
         interval,
+        snapshot_times,
         out_dir,
     )
     logger.debug("Dataset dir: %s", dataset_dir)
     
     results = list(pool.map(
-        lambda instance: run_algorithm_on_instance(challenge, dataset_dir, instance, hyperparameters, timeout, interval, out_dir),
-        instances
+        lambda instance: run_algorithm_on_instance(
+            challenge,
+            dataset_dir,
+            instance,
+            hyperparameters,
+            timeout,
+            interval,
+            out_dir,
+            snapshot_times,
+        ),
+        instances,
     ))
 
     if csv_path:
@@ -321,6 +358,13 @@ if __name__ == "__main__":
     run_parser.add_argument("--hyperparameters", help="Hyperparameters string")
     run_parser.add_argument("--timeout", type=int, default=60, help="Timeout in seconds")
     run_parser.add_argument("--interval", type=int, default=None, help="Interval (seconds) to snapshot the latest solution")
+    run_parser.add_argument(
+        "--snapshot-times",
+        default=None,
+        metavar="T1,T2,...",
+        help="Comma-separated elapsed seconds at which to snapshot; files are .solution.<T>. "
+        "If set, overrides --interval.",
+    )
     run_parser.add_argument("--out", default=None, help="Output directory for saving solutions (defaults to dataset directory)")
     run_parser.add_argument("--baseline", action="store_true", help="Run the baseline algorithm")
     run_parser.add_argument("--csv", default=None, help="CSV file path for saving results")
@@ -343,7 +387,26 @@ if __name__ == "__main__":
             logger.info("\n\tcommand=generate_dataset\n\tchallenge=%s\n\tconfig=%s\n\tout=%s", args.challenge, args.config, args.out)
             generate_dataset(args.challenge, args.config, args.out)
         elif args.command == "run_algorithm":
-            logger.info("\n\tcommand=run_algorithm\n\tchallenge=%s\n\tdataset_dir=%s\n\tworkers=%s\n\thyperparameters=%s\n\ttimeout=%s\n\tinterval=%s\n\tout=%s\n\tbaseline=%s\n\tcsv=%s", args.challenge, args.dataset_dir, args.workers, args.hyperparameters, args.timeout, args.interval, args.out, args.baseline, args.csv)
+            snapshot_times = None
+            if args.snapshot_times:
+                snapshot_times = [
+                    int(x.strip())
+                    for x in args.snapshot_times.split(",")
+                    if x.strip()
+                ]
+            logger.info(
+                "\n\tcommand=run_algorithm\n\tchallenge=%s\n\tdataset_dir=%s\n\tworkers=%s\n\thyperparameters=%s\n\ttimeout=%s\n\tinterval=%s\n\tsnapshot_times=%s\n\tout=%s\n\tbaseline=%s\n\tcsv=%s",
+                args.challenge,
+                args.dataset_dir,
+                args.workers,
+                args.hyperparameters,
+                args.timeout,
+                args.interval,
+                snapshot_times,
+                args.out,
+                args.baseline,
+                args.csv,
+            )
             run_algorithm(
                 args.challenge,
                 args.dataset_dir,
@@ -354,6 +417,7 @@ if __name__ == "__main__":
                 args.out,
                 args.baseline,
                 args.csv,
+                snapshot_times,
             )
         elif args.command == "evaluate_solutions":
             logger.info("\n\tcommand=evaluate_solutions\n\tchallenge=%s\n\tdataset_dir=%s\n\tsolutions=%s\n\tworkers=%s\n\tcsv=%s", args.challenge, args.dataset_dir, args.solutions, args.workers, args.csv)

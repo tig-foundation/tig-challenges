@@ -22,22 +22,36 @@ pub struct Hyperparameters {
     pub max_swap_k: usize,
     pub greedy_noise_low: f64,
     pub greedy_noise_high: f64,
+    pub max_tabu_iterations: usize,
 }
 
 impl Hyperparameters {
     pub fn initialize(h: &Option<Map<String, Value>>) -> Self {
         let mut p = Self {
-            alpha_factor: 1.0005,
-            tabu_tenure_scale: 1.0,
-            stall_limit_numerator: 5_000_000,
-            stall_limit_min: 5_000,
-            perturb_small_frac: 20.0,
-            perturb_medium_frac: 15.0,
-            p_small_perturb: 50,
-            p_medium_perturb: 85,
-            max_swap_k: 2,
-            greedy_noise_low: 0.5,
-            greedy_noise_high: 1.5,
+            // alpha_factor: 1.0005,
+            // tabu_tenure_scale: 1.0,
+            // stall_limit_numerator: 5_000_000,
+            // stall_limit_min: 5_000,
+            // perturb_small_frac: 20.0,
+            // perturb_medium_frac: 15.0,
+            // p_small_perturb: 50,
+            // p_medium_perturb: 85,
+            // max_swap_k: 2,
+            // greedy_noise_low: 0.5,
+            // greedy_noise_high: 1.5,
+            // max_tabu_iterations: 1000,
+            max_tabu_iterations: 100000,
+            stall_limit_numerator: 15000000,
+            stall_limit_min: 15000,
+            tabu_tenure_scale: 1.2,
+            alpha_factor: 1.00035,
+            perturb_small_frac: 25.0,
+            perturb_medium_frac: 20.0,
+            p_small_perturb: 45,
+            p_medium_perturb: 80,
+            greedy_noise_low: 0.35,
+            greedy_noise_high: 1.65,
+            max_swap_k: 2
         };
         if let Some(m) = h {
             if let Some(v) = m.get("alpha_factor").and_then(|v| v.as_f64()) { p.alpha_factor = v; }
@@ -51,6 +65,7 @@ impl Hyperparameters {
             if let Some(v) = m.get("max_swap_k").and_then(|v| v.as_u64()) { p.max_swap_k = v as usize; }
             if let Some(v) = m.get("greedy_noise_low").and_then(|v| v.as_f64()) { p.greedy_noise_low = v; }
             if let Some(v) = m.get("greedy_noise_high").and_then(|v| v.as_f64()) { p.greedy_noise_high = v; }
+            if let Some(v) = m.get("max_tabu_iterations").and_then(|v| v.as_u64()) { p.max_tabu_iterations = v as usize; }
         }
         p
     }
@@ -323,7 +338,7 @@ pub fn solve_challenge(
             }
         }
         
-        if iter % 1000 == 0 {
+        if iter >= hyperparameters.max_tabu_iterations {
             break;
         }
     }

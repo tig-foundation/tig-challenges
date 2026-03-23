@@ -19,17 +19,25 @@ use std::collections::{HashMap, HashSet};
 pub struct Track {
     pub n_nodes: usize,
     #[serde(default)]
-    pub capacity: usize,
+    pub capacity: i32,
     #[serde(default)]
-    pub window_size: usize,
+    pub window_size: i32,
 }
 
 impl Challenge {
     pub fn generate_instance(seed: &[u8; 32], track: &Track) -> Result<Self> {
         let mut rng = SmallRng::from_seed(seed.clone());
-        let max_capacity = track.capacity if track.capacity > 0 else 200;
+        let max_capacity = if track.capacity > 0 {
+            track.capacity
+        } else {
+            200
+        };
         let fleet_size = track.n_nodes / 4;
-        let window_size = track.window_size if track.window_size > 0 else 30;
+        let window_size = if track.window_size > 0 {
+            track.window_size
+        } else {
+            30
+        };
 
         let num_clusters = rng.gen_range(3..=8);
         let mut node_positions: Vec<(i32, i32)> = Vec::with_capacity(track.n_nodes);

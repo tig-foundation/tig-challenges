@@ -48,14 +48,12 @@ Notes:
 - Solutions are saved as `<instance>.solution`.
 - Add `--baseline` to run the built-in baseline solver.
 - Add `--csv runs.csv` to export runtime and memory stats.
+- Optional **`--interval <seconds>`**: while the solver runs, periodically copy the latest solution to `<instance>.solution.<n×interval>` (wall-clock).
+- Optional **`--snapshot-times T1,T2,...`**: copy the latest solution at those elapsed wall-clock seconds to `<instance>.solution.<T>` for each `T`. If set, this overrides `--interval`.
 
-**Batch baseline on all test/TIG splits** (30-minute cap per instance, 5-minute snapshots by default):
-
-```bash
-./scripts/run_baseline_test_tig.sh
-```
 
 Outputs go under `runs/baseline_testTIG_t1800_i300/<challenge>/` (mirroring `datasets/<challenge>/test/TIG/...`), plus `manifest.json` and per-challenge `runs.csv`. Override `TIMEOUT`, `INTERVAL`, `WORKERS`, or `RUN_ROOT` via environment variables (see comments in the script).
+
 
 ### 4. Evaluate solutions
 
