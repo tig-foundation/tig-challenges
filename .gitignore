@@ -16,9 +16,7 @@ __pycache__/
 # Ignore these. 
 db_data/
 datasets/**/*.txt
-datasets/**/*.solution*
-
-# Baseline / experiment outputs (see scripts/run_baseline_test_tig.sh)
+datasets/**/*.TXT
 runs/
 
 .DS_Store

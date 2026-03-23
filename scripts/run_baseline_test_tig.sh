@@ -8,7 +8,6 @@
 #   INTERVAL         Used in RUN_ROOT naming only (default 5).
 #   SNAPSHOT_TIMES   Comma-separated elapsed seconds for snapshots on all three challenges
 #                    (.solution.<T>). Default: 2,5,10,...,1800.
-#                    If unset, falls back to VR_SNAPSHOT_TIMES when set (backward compatibility).
 #   WORKERS          Parallel instances (default 8).
 #   RUN_ROOT         Output root directory (default runs/baseline_testTIG_t${TIMEOUT}_i${INTERVAL}).
 #
@@ -21,12 +20,11 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
-TIMEOUT="${TIMEOUT:-20}"
-INTERVAL="${INTERVAL:-5}"
-_DEFAULT_SNAPSHOT_TIMES="2,5,10,20,30,60,90,120,300,600,900,1200,1500,1800"
-SNAPSHOT_TIMES="${SNAPSHOT_TIMES:-${VR_SNAPSHOT_TIMES:-$_DEFAULT_SNAPSHOT_TIMES}}"
+TIMEOUT="${TIMEOUT:-2}"
+INTERVAL="${INTERVAL:-300}"
+SNAPSHOT_TIMES="${SNAPSHOT_TIMES:-2,5,10,20,30,60,90,120,300,600,900,1200,1500,1800}"
 WORKERS="${WORKERS:-8}"
-RUN_ROOT="${RUN_ROOT:-$ROOT_DIR/runs/baseline_testTIG_t${TIMEOUT}_i${INTERVAL}}"
+RUN_ROOT="${RUN_ROOT:-$ROOT_DIR/runs/baseline_test_t${TIMEOUT}_i${INTERVAL}}"
 
 mkdir -p "$RUN_ROOT"
 
@@ -38,15 +36,15 @@ mkdir -p "$RUN_ROOT"
   printf '  "snapshot_times_seconds": "%s",\n' "$SNAPSHOT_TIMES"
   printf '  "workers": %s,\n' "$WORKERS"
   printf '  "dataset_dirs": {\n'
-  printf '    "knapsack": "datasets/knapsack/test/TIG",\n'
-  printf '    "vehicle_routing": "datasets/vehicle_routing/test/TIG",\n'
-  printf '    "job_scheduling": "datasets/job_scheduling/test/TIG"\n'
+  printf '    "knapsack": "datasets/knapsack/test",\n'
+  printf '    "vehicle_routing": "datasets/vehicle_routing/test",\n'
+  printf '    "job_scheduling": "datasets/job_scheduling/test"\n'
   printf '  }\n'
   printf '}\n'
 } >"$RUN_ROOT/manifest.json"
 
 for challenge in knapsack vehicle_routing job_scheduling; do
-  dataset_dir="datasets/${challenge}/test/TIG"
+  dataset_dir="datasets/${challenge}/test"
   out_dir="$RUN_ROOT/$challenge"
   mkdir -p "$out_dir"
 

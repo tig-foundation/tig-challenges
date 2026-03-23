@@ -52,9 +52,6 @@ Notes:
 - Optional **`--snapshot-times T1,T2,...`**: copy the latest solution at those elapsed wall-clock seconds to `<instance>.solution.<T>` for each `T`. If set, this overrides `--interval`.
 
 
-Outputs go under `runs/baseline_testTIG_t1800_i300/<challenge>/` (mirroring `datasets/<challenge>/test/TIG/...`), plus `manifest.json` and per-challenge `runs.csv`. Override `TIMEOUT`, `INTERVAL`, `WORKERS`, or `RUN_ROOT` via environment variables (see comments in the script).
-
-
 ### 4. Evaluate solutions
 
 Score generated solutions:
