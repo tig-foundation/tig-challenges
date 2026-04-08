@@ -39,6 +39,7 @@ def extract_instances(zip_bytes: bytes, dest_dir: str) -> None:
             filename = os.path.basename(member)
             if not filename:
                 continue
+            filename = os.path.splitext(filename)[0] + ".txt"
             target_path = os.path.join(dest_dir, filename)
             with zf.open(member) as src, open(target_path, "wb") as dst:
                 shutil.copyfileobj(src, dst)
@@ -46,11 +47,11 @@ def extract_instances(zip_bytes: bytes, dest_dir: str) -> None:
 
 def main() -> None:
     this_dir = os.path.abspath(os.path.dirname(__file__))
-    test_dir = os.path.abspath(os.path.join(this_dir, "..", "test"))
+    test_dir = os.path.abspath(os.path.join(this_dir, "..", "test", "HG"))
     os.makedirs(test_dir, exist_ok=True)
 
-    print("Downloading Homberger & Gehring instances ZIPs for sizes 600-1000")
-    for size in [600, 800, 1000]:
+    print("Downloading Homberger & Gehring instances ZIPs for all sizes (200-1000)")
+    for size in [200, 400, 600, 800, 1000]:
         url = f"{ZIP_URL}/{size}/homberger_{size}_customer_instances.zip"
         zip_bytes = download_with_retries(url)
         extract_instances(zip_bytes, test_dir)
